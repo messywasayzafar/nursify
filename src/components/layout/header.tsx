@@ -40,7 +40,6 @@ const navItems = [
     { href: '/chat', label: 'Chats' },
     { href: '/billing', label: 'Billing' },
     { href: '/orders', label: 'Orders' },
-    { href: '/follow-ups', label: 'Follow Ups' },
 ];
 
 export function AppHeader() {
