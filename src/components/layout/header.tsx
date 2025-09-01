@@ -1,20 +1,28 @@
+
 "use client";
 
 import Link from 'next/link';
 import {
-  CircleUser,
-  Menu,
   Stethoscope,
   ChevronDown,
-  MessageSquare,
-  CreditCard,
-  FileText,
-  FileUp,
   Settings,
   HelpCircle,
   LogOut,
   Bell,
-  Search
+  Menu,
+  Home,
+  Users,
+  MessageSquare,
+  CreditCard,
+  FileText,
+  HeartPulse,
+  Users2,
+  LineChart,
+  User,
+  BellRing,
+  FileBarChart,
+  LockKeyhole,
+  Building,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +34,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
     { href: '/chat', label: 'Chats' },
@@ -36,6 +44,13 @@ const navItems = [
 ];
 
 export function AppHeader() {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // TODO: Implement actual logout logic
+    router.push('/login');
+  };
+
   return (
     <header className="flex flex-col border-b bg-muted/40">
       <div className="flex h-14 items-center justify-between px-4 lg:px-6">
@@ -111,16 +126,23 @@ export function AppHeader() {
                     <ChevronDown className="h-4 w-4" />
                 </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Account Settings</span></DropdownMenuItem>
-                  <DropdownMenuItem><HelpCircle className="mr-2 h-4 w-4" /><span>Help</span></DropdownMenuItem>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem asChild><Link href="/edit-profile"><User className="mr-2 h-4 w-4" /><span>Edit Profile</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/switch-organization"><Building className="mr-2 h-4 w-4" /><span>Switch Organization</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/notifications"><BellRing className="mr-2 h-4 w-4" /><span>Notifications</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/report"><FileBarChart className="mr-2 h-4 w-4" /><span>Report</span></Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/forgot-password"><LockKeyhole className="mr-2 h-4 w-4" /><span>Reset Password</span></Link></DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-             <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5"/>
-                <span className="sr-only">Notifications</span>
+             <Button variant="ghost" size="icon" asChild>
+                <Link href="/notifications">
+                  <Bell className="h-5 w-5"/>
+                  <span className="sr-only">Notifications</span>
+                </Link>
             </Button>
              <Button variant="ghost" size="icon">
                 <Settings className="h-5 w-5"/>
