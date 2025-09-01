@@ -26,6 +26,8 @@ const navItems = [
     { href: '/groups', label: 'Groups' },
     { href: '/chat', label: 'Chats' },
     { href: '/referrals', label: 'Referrals' },
+    { href: '/billing', label: 'Billing' },
+    { href: '/orders', label: 'Orders' },
 ];
 
 

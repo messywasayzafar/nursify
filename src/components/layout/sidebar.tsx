@@ -14,6 +14,8 @@ import {
   Users2,
   Stethoscope,
   HeartPulse,
+  CreditCard,
+  FileText,
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +35,8 @@ const navItems = [
     { href: '/groups', icon: Users2, label: 'Groups' },
     { href: '/chat', icon: MessageSquare, label: 'Chats', badge: '3' },
     { href: '/referrals', icon: LineChart, label: 'Referrals' },
+    { href: '/billing', icon: CreditCard, label: 'Billing' },
+    { href: '/orders', icon: FileText, label: 'Orders' },
 ];
 
 export function AppSidebar() {
