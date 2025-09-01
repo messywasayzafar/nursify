@@ -2,9 +2,16 @@ import Link from 'next/link';
 import {
   CircleUser,
   Menu,
-  Package2,
   Stethoscope,
-  Bell
+  Bell,
+  Home,
+  HeartPulse,
+  Users,
+  Users2,
+  MessageSquare,
+  LineChart,
+  CreditCard,
+  FileText
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -16,27 +23,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navItems = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/patients', label: 'Patients' },
-    { href: '/users', label: 'Staff' },
-    { href: '/groups', label: 'Groups' },
-    { href: '/chat', label: 'Chats' },
-    { href: '/referrals', label: 'Referrals' },
-    { href: '/billing', label: 'Billing' },
-    { href: '/orders', label: 'Orders' },
+    { href: '/dashboard', icon: Home, label: 'Dashboard' },
+    { href: '/patients', icon: HeartPulse, label: 'Patients' },
+    { href: '/users', icon: Users, label: 'Staff' },
+    { href: '/groups', icon: Users2, label: 'Groups' },
+    { href: '/chat', icon: MessageSquare, label: 'Chats' },
+    { href: '/referrals', icon: LineChart, label: 'Referrals' },
+    { href: '/billing', icon: CreditCard, label: 'Billing' },
+    { href: '/orders', icon: FileText, label: 'Orders' },
 ];
 
 
 export function AppHeader() {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+      <div className="flex items-center gap-2 font-semibold">
+        <Stethoscope className="h-6 w-6 text-primary" />
+        <span className="">Nursify Portal</span>
+      </div>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+          <Button variant="outline" size="icon" className="shrink-0 md:hidden ml-auto">
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
@@ -56,38 +66,45 @@ export function AppHeader() {
                     href={item.href}
                     className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
+                    <item.icon className="h-5 w-5" />
                     {item.label}
                 </Link>
             ))}
           </nav>
         </SheetContent>
       </Sheet>
+      
+      <nav className="hidden md:flex md:items-center md:gap-5 lg:gap-6 text-sm font-medium ml-10">
+        {navItems.map(item => (
+            <Link key={item.label} href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
+                {item.label}
+            </Link>
+        ))}
+      </nav>
 
-      <div className="w-full flex-1">
-        {/* Search bar removed */}
+      <div className="flex items-center gap-2 ml-auto">
+        <Button variant="ghost" size="icon" className="rounded-full">
+            <Bell className="h-5 w-5" />
+            <span className="sr-only">Notifications</span>
+        </Button>
+
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="icon" className="rounded-full">
+                <CircleUser className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+            </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-
-      <Button variant="ghost" size="icon" className="rounded-full">
-        <Bell className="h-5 w-5" />
-        <span className="sr-only">Notifications</span>
-      </Button>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="icon" className="rounded-full">
-            <CircleUser className="h-5 w-5" />
-            <span className="sr-only">Toggle user menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Support</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }
