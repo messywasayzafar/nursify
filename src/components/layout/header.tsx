@@ -41,7 +41,6 @@ import React from 'react';
 import { SwitchOrganizationModal } from '../profile/switch-organization-modal';
 
 const navItems = [
-    { href: '/dashboard', label: 'Dashboard' },
     { href: '/chat', label: 'Chats' },
     { href: '/billing', label: 'Billing' },
     { href: '/orders', label: 'Orders' },
