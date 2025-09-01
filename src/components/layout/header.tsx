@@ -38,6 +38,7 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { EditProfileModal } from '../profile/edit-profile-modal';
 import React from 'react';
+import { SwitchOrganizationModal } from '../profile/switch-organization-modal';
 
 const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -49,6 +50,7 @@ const navItems = [
 export function AppHeader() {
   const router = useRouter();
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+  const [isSwitchOrgModalOpen, setIsSwitchOrgModalOpen] = React.useState(false);
 
   const handleLogout = () => {
     // TODO: Implement actual logout logic
@@ -123,7 +125,7 @@ export function AppHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-            <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+            <Dialog>
               <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2">
@@ -132,13 +134,24 @@ export function AppHeader() {
                   </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DialogTrigger asChild>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Edit Profile</span>
-                      </DropdownMenuItem>
-                    </DialogTrigger>
-                    <DropdownMenuItem asChild><Link href="/switch-organization"><Building className="mr-2 h-4 w-4" /><span>Switch Organization</span></Link></DropdownMenuItem>
+                    <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Edit Profile</span>
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <EditProfileModal setOpen={setIsProfileModalOpen} />
+                    </Dialog>
+                    <Dialog open={isSwitchOrgModalOpen} onOpenChange={setIsSwitchOrgModalOpen}>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <Building className="mr-2 h-4 w-4" />
+                          <span>Switch Organization</span>
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <SwitchOrganizationModal setOpen={setIsSwitchOrgModalOpen} />
+                    </Dialog>
                     <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link href="/notifications"><BellRing className="mr-2 h-4 w-4" /><span>Notifications</span></Link></DropdownMenuItem>
@@ -148,7 +161,6 @@ export function AppHeader() {
                     <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
                   </DropdownMenuContent>
               </DropdownMenu>
-              <EditProfileModal setOpen={setIsProfileModalOpen} />
             </Dialog>
              <Button variant="ghost" size="icon" asChild>
                 <Link href="/notifications">
