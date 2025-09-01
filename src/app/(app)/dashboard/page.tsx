@@ -22,6 +22,11 @@ export default function DashboardPage() {
     }
   ];
 
+  const birthdays = [
+    { name: 'Noman Nizam', date: '10 July', age: 32 },
+    { name: 'Angela', date: '11 July', age: 45 },
+  ];
+
   return (
     <div className="flex-1 space-y-4">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -66,7 +71,7 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
         </div>
-        <div>
+        <div className="grid gap-4 md:grid-cols-2">
             <Card>
                 <CardHeader>
                     <CardTitle>Alerts</CardTitle>
@@ -83,6 +88,24 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
         </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="w-1/6">
+                <p className="font-bold">This Month</p>
+                <p className="text-sm">Birthdays</p>
+              </div>
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {birthdays.map((birthday, index) => (
+                  <div key={index}>
+                    <p className="font-semibold">{birthday.name}</p>
+                    <p className="text-sm text-muted-foreground">{birthday.date}, {birthday.age} Years</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
     </div>
   );
 }
