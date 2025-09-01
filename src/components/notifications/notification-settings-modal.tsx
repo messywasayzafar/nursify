@@ -20,7 +20,7 @@ export function NotificationSettingsModal({ setOpen }: NotificationSettingsModal
   return (
     <DialogContent className="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle className="text-center text-xl">Notifications</DialogTitle>
+        <DialogTitle>Notifications</DialogTitle>
       </DialogHeader>
       <div className="grid gap-6 py-4">
         <div className="flex items-center justify-between">

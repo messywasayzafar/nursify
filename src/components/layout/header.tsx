@@ -155,7 +155,15 @@ export function AppHeader() {
                     </Dialog>
                     <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/notifications"><BellRing className="mr-2 h-4 w-4" /><span>Notifications</span></Link></DropdownMenuItem>
+                    <Dialog open={isNotificationSettingsModalOpen} onOpenChange={setIsNotificationSettingsModalOpen}>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <BellRing className="mr-2 h-4 w-4" />
+                          <span>Notifications</span>
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
+                    </Dialog>
                     <DropdownMenuItem asChild><Link href="/report"><FileBarChart className="mr-2 h-4 w-4" /><span>Report</span></Link></DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild><Link href="/forgot-password"><LockKeyhole className="mr-2 h-4 w-4" /><span>Reset Password</span></Link></DropdownMenuItem>
@@ -163,15 +171,12 @@ export function AppHeader() {
                   </DropdownMenuContent>
               </DropdownMenu>
             </Dialog>
-            <Dialog open={isNotificationSettingsModalOpen} onOpenChange={setIsNotificationSettingsModalOpen}>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Bell className="h-5 w-5"/>
-                  <span className="sr-only">Notifications</span>
-                </Button>
-              </DialogTrigger>
-              <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
-            </Dialog>
+            <Button asChild variant="ghost" size="icon">
+              <Link href="/notifications">
+                <Bell className="h-5 w-5"/>
+                <span className="sr-only">Notifications</span>
+              </Link>
+            </Button>
              <Button variant="ghost" size="icon">
                 <Settings className="h-5 w-5"/>
                 <span className="sr-only">Settings</span>
