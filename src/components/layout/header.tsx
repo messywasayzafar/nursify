@@ -9,7 +9,6 @@ import {
   Users,
   Users2,
   MessageSquare,
-  LineChart,
   CreditCard,
   FileText
 } from 'lucide-react';
@@ -31,7 +30,6 @@ const navItems = [
     { href: '/users', icon: Users, label: 'Staff' },
     { href: '/groups', icon: Users2, label: 'Groups' },
     { href: '/chat', icon: MessageSquare, label: 'Chats' },
-    { href: '/referrals', icon: LineChart, label: 'Referrals' },
     { href: '/billing', icon: CreditCard, label: 'Billing' },
     { href: '/orders', icon: FileText, label: 'Orders' },
 ];
