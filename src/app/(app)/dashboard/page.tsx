@@ -57,9 +57,15 @@ export default function DashboardPage() {
                 <CardHeader>
                     <CardTitle>Recerts Due</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex justify-between">
+                  <div>
+                    <div className="text-2xl font-bold">12</div>
+                    <p className="text-xs text-muted-foreground">This week</p>
+                  </div>
+                  <div>
                     <div className="text-2xl font-bold">45</div>
-                     <p className="text-xs text-muted-foreground">This month</p>
+                    <p className="text-xs text-muted-foreground">This month</p>
+                  </div>
                 </CardContent>
             </Card>
         </div>
