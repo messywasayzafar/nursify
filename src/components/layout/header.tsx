@@ -10,7 +10,14 @@ import {
   Users2,
   MessageSquare,
   CreditCard,
-  FileText
+  FileText,
+  User,
+  Building,
+  LayoutDashboard,
+  BellRing,
+  FileBarChart,
+  Lock,
+  LogOut,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -89,12 +97,15 @@ export function AppHeader() {
             </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>Edit Profile</span></DropdownMenuItem>
+              <DropdownMenuItem><Building className="mr-2 h-4 w-4" /><span>Switch Organization</span></DropdownMenuItem>
+              <DropdownMenuItem><LayoutDashboard className="mr-2 h-4 w-4" /><span>My Dashboard</span></DropdownMenuItem>
+              <DropdownMenuItem><Users className="mr-2 h-4 w-4" /><span>Users</span></DropdownMenuItem>
+              <DropdownMenuItem><BellRing className="mr-2 h-4 w-4" /><span>Notifications</span></DropdownMenuItem>
+              <DropdownMenuItem><FileBarChart className="mr-2 h-4 w-4" /><span>Report</span></DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem><Lock className="mr-2 h-4 w-4" /><span>Reset Password</span></DropdownMenuItem>
+              <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
       </div>
