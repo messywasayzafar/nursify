@@ -13,11 +13,11 @@ export default function ReportPage() {
       <CardHeader>
         <CardTitle>Reports</CardTitle>
         <CardDescription>
-          This section is under construction. You will be able to view and generate reports here.
+          Reports can be generated from the 'My Account' menu in the header.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Report generation and viewing functionalities will be implemented soon.</p>
+        <p>Use the 'Report Center' modal to generate and view various reports for your organization.</p>
       </CardContent>
     </Card>
   );

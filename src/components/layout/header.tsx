@@ -40,6 +40,7 @@ import { EditProfileModal } from '../profile/edit-profile-modal';
 import React from 'react';
 import { SwitchOrganizationModal } from '../profile/switch-organization-modal';
 import { NotificationSettingsModal } from '../notifications/notification-settings-modal';
+import { ReportCenterModal } from '../report/report-center-modal';
 
 const navItems = [
     { href: '/chat', label: 'Chats' },
@@ -52,6 +53,7 @@ export function AppHeader() {
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [isSwitchOrgModalOpen, setIsSwitchOrgModalOpen] = React.useState(false);
   const [isNotificationSettingsModalOpen, setIsNotificationSettingsModalOpen] = React.useState(false);
+  const [isReportCenterModalOpen, setIsReportCenterModalOpen] = React.useState(false);
 
   const handleLogout = () => {
     // TODO: Implement actual logout logic
@@ -164,7 +166,15 @@ export function AppHeader() {
                       </DialogTrigger>
                       <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
                     </Dialog>
-                    <DropdownMenuItem asChild><Link href="/report"><FileBarChart className="mr-2 h-4 w-4" /><span>Report</span></Link></DropdownMenuItem>
+                    <Dialog open={isReportCenterModalOpen} onOpenChange={setIsReportCenterModalOpen}>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <FileBarChart className="mr-2 h-4 w-4" />
+                          <span>Report</span>
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <ReportCenterModal setOpen={setIsReportCenterModalOpen} />
+                    </Dialog>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild><Link href="/forgot-password"><LockKeyhole className="mr-2 h-4 w-4" /><span>Reset Password</span></Link></DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
