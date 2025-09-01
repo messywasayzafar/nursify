@@ -48,7 +48,6 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">3</div>
-                     <p className="text-xs text-muted-foreground">Awaiting assignment</p>
                 </CardContent>
             </Card>
              <Card>
