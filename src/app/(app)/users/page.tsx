@@ -11,6 +11,7 @@ import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { AddUserModal } from '@/components/users/add-user-modal';
+import { SelectWorkingAreaModal } from '@/components/users/select-working-area-modal';
 
 type User = {
   name: string;
@@ -43,6 +44,13 @@ export default function UsersPage() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [isWorkingAreaModalOpen, setIsWorkingAreaModalOpen] = useState(false);
+
+
+  const handleUserAdded = () => {
+    setIsAddUserModalOpen(false);
+    setIsWorkingAreaModalOpen(true);
+  }
 
   const filteredUsers = mockUsers.filter(user => {
     const statusMatch = statusFilter === 'All' || user.status === statusFilter;
@@ -142,7 +150,10 @@ export default function UsersPage() {
                 <DialogTrigger asChild>
                     <Button className="bg-primary hover:bg-primary/90">Add User</Button>
                 </DialogTrigger>
-                <AddUserModal setOpen={setIsAddUserModalOpen} />
+                <AddUserModal setOpen={setIsAddUserModalOpen} onUserAdded={handleUserAdded} />
+            </Dialog>
+            <Dialog open={isWorkingAreaModalOpen} onOpenChange={setIsWorkingAreaModalOpen}>
+                <SelectWorkingAreaModal setOpen={setIsWorkingAreaModalOpen} />
             </Dialog>
             <Button className="bg-primary hover:bg-primary/90">Export To Excel</Button>
           </div>

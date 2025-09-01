@@ -25,9 +25,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface AddUserModalProps {
   setOpen: (open: boolean) => void;
+  onUserAdded: () => void;
 }
 
-export function AddUserModal({ setOpen }: AddUserModalProps) {
+export function AddUserModal({ setOpen, onUserAdded }: AddUserModalProps) {
+  const handleSubmit = () => {
+    // a real app would do form validation and API calls here
+    onUserAdded();
+  }
   return (
     <DialogContent className="sm:max-w-4xl">
       <DialogHeader>
@@ -45,7 +50,7 @@ export function AddUserModal({ setOpen }: AddUserModalProps) {
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <Avatar className="h-32 w-32">
-                <AvatarImage src="https://picsum.photos/128" alt="User" />
+                <AvatarImage src="https://picsum.photos/128" alt="User" data-ai-hint="person" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <label
@@ -152,7 +157,7 @@ export function AddUserModal({ setOpen }: AddUserModalProps) {
         <Button variant="outline" onClick={() => setOpen(false)}>
           Cancel
         </Button>
-        <Button type="submit" onClick={() => setOpen(false)} className="bg-accent hover:bg-accent/90">
+        <Button type="submit" onClick={handleSubmit} className="bg-accent hover:bg-accent/90">
           Add User
         </Button>
       </DialogFooter>
