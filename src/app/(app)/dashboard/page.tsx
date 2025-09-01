@@ -32,7 +32,6 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">12</div>
-                    <p className="text-xs text-muted-foreground">+2 from last week</p>
                 </CardContent>
             </Card>
             <Card>
