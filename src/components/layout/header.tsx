@@ -81,15 +81,15 @@ export function AppHeader() {
         </SheetContent>
       </Sheet>
       
-      <nav className="hidden md:flex md:items-center md:gap-5 lg:gap-6 text-sm font-medium ml-10">
-        {navItems.map(item => (
-            <Link key={item.label} href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
-                {item.label}
-            </Link>
-        ))}
-      </nav>
+      <div className="flex items-center gap-4 ml-auto">
+        <nav className="hidden md:flex md:items-center md:gap-5 lg:gap-6 text-sm font-medium">
+          {navItems.map(item => (
+              <Link key={item.label} href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
+                  {item.label}
+              </Link>
+          ))}
+        </nav>
 
-      <div className="flex items-center gap-2 ml-auto">
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
