@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { AddUserModal } from '@/components/users/add-user-modal';
 
 type User = {
   name: string;
@@ -40,6 +42,7 @@ const mockUsers: User[] = [
 export default function UsersPage() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 
   const filteredUsers = mockUsers.filter(user => {
     const statusMatch = statusFilter === 'All' || user.status === statusFilter;
@@ -135,7 +138,12 @@ export default function UsersPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button className="bg-primary hover:bg-primary/90">Add User</Button>
+            <Dialog open={isAddUserModalOpen} onOpenChange={setIsAddUserModalOpen}>
+                <DialogTrigger asChild>
+                    <Button className="bg-primary hover:bg-primary/90">Add User</Button>
+                </DialogTrigger>
+                <AddUserModal setOpen={setIsAddUserModalOpen} />
+            </Dialog>
             <Button className="bg-primary hover:bg-primary/90">Export To Excel</Button>
           </div>
         </div>
