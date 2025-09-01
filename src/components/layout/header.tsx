@@ -37,6 +37,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useRouter } from 'next/navigation';
 
 const navItems = [
+    { href: '/dashboard', label: 'Dashboard' },
     { href: '/chat', label: 'Chats' },
     { href: '/billing', label: 'Billing' },
     { href: '/orders', label: 'Orders' },
