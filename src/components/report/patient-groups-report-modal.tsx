@@ -85,9 +85,6 @@ export function PatientGroupsReportModal({ setOpen }: PatientGroupsReportModalPr
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-end gap-4">
               <div>
-                  <Button variant="outline" className="border-primary text-primary">Patient Groups</Button>
-              </div>
-              <div>
                 <Label htmlFor="status" className="text-sm font-medium">Status</Label>
                 <Select defaultValue="active">
                   <SelectTrigger id="status" className="w-[180px]">
