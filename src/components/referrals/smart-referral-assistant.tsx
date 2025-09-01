@@ -1,21 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { smartReferralAssistant, SmartReferralAssistantOutput } from '@/ai/flows/smart-referral-assistant';
+import { SmartReferralAssistantOutput } from '@/ai/flows/smart-referral-assistant';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { patientForReferral, staffForReferral } from '@/lib/mock-data';
 import { User, MapPin, Stethoscope, Briefcase, Loader2, BrainCircuit } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
+import { getRecommendationsAction } from '@/app/(app)/referrals/actions';
 
-async function getRecommendationsAction() {
-  'use server';
-  return await smartReferralAssistant({
-    patientInfo: patientForReferral,
-    availableStaff: staffForReferral,
-  });
-}
 
 export function SmartReferralAssistant() {
   const [recommendations, setRecommendations] = useState<SmartReferralAssistantOutput | null>(null);
