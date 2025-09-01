@@ -16,9 +16,14 @@ import { MapPin, Search, X } from 'lucide-react';
 
 interface SelectWorkingAreaModalProps {
   setOpen: (open: boolean) => void;
+  onAreaSelected: () => void;
 }
 
-export function SelectWorkingAreaModal({ setOpen }: SelectWorkingAreaModalProps) {
+export function SelectWorkingAreaModal({ setOpen, onAreaSelected }: SelectWorkingAreaModalProps) {
+  const handleSubmit = () => {
+    // a real app would do form validation and API calls here
+    onAreaSelected();
+  }
   return (
     <DialogContent className="sm:max-w-6xl p-0">
       <DialogHeader className="p-4 border-b">
@@ -62,7 +67,7 @@ export function SelectWorkingAreaModal({ setOpen }: SelectWorkingAreaModalProps)
         <Button variant="outline" onClick={() => setOpen(false)}>
           Cancel
         </Button>
-        <Button type="submit" onClick={() => setOpen(false)} className="bg-primary hover:bg-primary/90">
+        <Button type="submit" onClick={handleSubmit} className="bg-primary hover:bg-primary/90">
           Select Area
         </Button>
       </DialogFooter>

@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { AddUserModal } from '@/components/users/add-user-modal';
 import { SelectWorkingAreaModal } from '@/components/users/select-working-area-modal';
+import { SelectPermissionModal } from '@/components/users/select-permission-modal';
 
 type User = {
   name: string;
@@ -45,11 +46,17 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isWorkingAreaModalOpen, setIsWorkingAreaModalOpen] = useState(false);
+  const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
 
 
   const handleUserAdded = () => {
     setIsAddUserModalOpen(false);
     setIsWorkingAreaModalOpen(true);
+  }
+
+  const handleWorkingAreaSelected = () => {
+    setIsWorkingAreaModalOpen(false);
+    setIsPermissionModalOpen(true);
   }
 
   const filteredUsers = mockUsers.filter(user => {
@@ -153,7 +160,10 @@ export default function UsersPage() {
                 <AddUserModal setOpen={setIsAddUserModalOpen} onUserAdded={handleUserAdded} />
             </Dialog>
             <Dialog open={isWorkingAreaModalOpen} onOpenChange={setIsWorkingAreaModalOpen}>
-                <SelectWorkingAreaModal setOpen={setIsWorkingAreaModalOpen} />
+                <SelectWorkingAreaModal setOpen={setIsWorkingAreaModalOpen} onAreaSelected={handleWorkingAreaSelected} />
+            </Dialog>
+            <Dialog open={isPermissionModalOpen} onOpenChange={setIsPermissionModalOpen}>
+                <SelectPermissionModal setOpen={setIsPermissionModalOpen} />
             </Dialog>
             <Button className="bg-primary hover:bg-primary/90">Export To Excel</Button>
           </div>
