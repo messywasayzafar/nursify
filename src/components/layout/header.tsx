@@ -39,6 +39,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { EditProfileModal } from '../profile/edit-profile-modal';
 import React from 'react';
 import { SwitchOrganizationModal } from '../profile/switch-organization-modal';
+import { NotificationSettingsModal } from '../notifications/notification-settings-modal';
 
 const navItems = [
     { href: '/chat', label: 'Chats' },
@@ -50,6 +51,7 @@ export function AppHeader() {
   const router = useRouter();
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [isSwitchOrgModalOpen, setIsSwitchOrgModalOpen] = React.useState(false);
+  const [isNotificationSettingsModalOpen, setIsNotificationSettingsModalOpen] = React.useState(false);
 
   const handleLogout = () => {
     // TODO: Implement actual logout logic
@@ -161,12 +163,15 @@ export function AppHeader() {
                   </DropdownMenuContent>
               </DropdownMenu>
             </Dialog>
-             <Button variant="ghost" size="icon" asChild>
-                <Link href="/notifications">
+            <Dialog open={isNotificationSettingsModalOpen} onOpenChange={setIsNotificationSettingsModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon">
                   <Bell className="h-5 w-5"/>
                   <span className="sr-only">Notifications</span>
-                </Link>
-            </Button>
+                </Button>
+              </DialogTrigger>
+              <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
+            </Dialog>
              <Button variant="ghost" size="icon">
                 <Settings className="h-5 w-5"/>
                 <span className="sr-only">Settings</span>
