@@ -1,9 +1,10 @@
+"use client";
+
 import Link from 'next/link';
 import {
   CircleUser,
   Menu,
   Stethoscope,
-  Bell,
   Home,
   HeartPulse,
   Users,
