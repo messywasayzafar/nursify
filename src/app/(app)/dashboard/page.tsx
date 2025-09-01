@@ -40,7 +40,6 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">8</div>
-                    <p className="text-xs text-muted-foreground">Team A & B</p>
                 </CardContent>
             </Card>
             <Card>
