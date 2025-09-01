@@ -5,19 +5,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { mockAlerts } from '@/lib/mock-data';
-import { AlertTriangle, BadgeCheck, PartyPopper, ArrowRightLeft } from 'lucide-react';
-import type { Alert } from '@/lib/types';
-
-const iconMap: Record<Alert['type'], React.ReactNode> = {
-  'Patient Transfer': <ArrowRightLeft className="h-6 w-6 text-blue-500" />,
-  'Recertification Due': <BadgeCheck className="h-6 w-6 text-yellow-500" />,
-  'Acknowledgment': <AlertTriangle className="h-6 w-6 text-red-500" />,
-  'Staff Birthday': <PartyPopper className="h-6 w-6 text-pink-500" />,
-};
-
 
 export default function DashboardPage() {
+  const alerts = [
+    {
+      title: 'Transfer Patients:',
+      description: 'Smith, Kolk: transferred on 09 july, 2025'
+    },
+    {
+      title: 'Priority Msg:',
+      description: '10 Msgs'
+    },
+    {
+      title: 'Acknowledgments:',
+      description: '12 acknowledgments'
+    }
+  ];
+
   return (
     <div className="flex-1 space-y-4">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -33,7 +37,7 @@ export default function DashboardPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Staff On Duty</CardTitle>
+                    <CardTitle>Pending SOC</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">8</div>
@@ -42,7 +46,7 @@ export default function DashboardPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Pending Referrals</CardTitle>
+                    <CardTitle>Transfer Patient</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">3</div>
@@ -51,7 +55,7 @@ export default function DashboardPage() {
             </Card>
              <Card>
                 <CardHeader>
-                    <CardTitle>Completed Visits</CardTitle>
+                    <CardTitle>Recerts Due</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">45</div>
@@ -62,18 +66,14 @@ export default function DashboardPage() {
         <div>
             <Card>
                 <CardHeader>
-                    <CardTitle>Alerts & Reminders</CardTitle>
-                    <CardDescription>Important updates and tasks requiring your attention.</CardDescription>
+                    <CardTitle>Alerts</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {mockAlerts.map((alert) => (
-                            <div key={alert.id} className="flex items-start gap-4">
-                                <div className="p-2 bg-muted rounded-md">{iconMap[alert.type]}</div>
-                                <div className="flex-1">
-                                    <p className="font-medium">{alert.title}</p>
-                                    <p className="text-sm text-muted-foreground">{alert.date}</p>
-                                </div>
+                        {alerts.map((alert, index) => (
+                            <div key={index}>
+                                <p className="font-bold">{alert.title}</p>
+                                <p className="text-sm text-muted-foreground">{alert.description}</p>
                             </div>
                         ))}
                     </div>
