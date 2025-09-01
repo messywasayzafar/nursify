@@ -35,6 +35,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { EditProfileModal } from '../profile/edit-profile-modal';
+import React from 'react';
 
 const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -45,6 +48,7 @@ const navItems = [
 
 export function AppHeader() {
   const router = useRouter();
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
 
   const handleLogout = () => {
     // TODO: Implement actual logout logic
@@ -110,7 +114,7 @@ export function AppHeader() {
       </div>
 
       <div className="h-14 items-center gap-4 border-t bg-background px-4 lg:px-6 hidden md:flex">
-        <nav className="flex flex-1 items-center gap-5 lg:gap-6 text-sm font-medium">
+        <nav className="flex flex-1 items-center gap-5 lg:gap-6 text-sm font-medium justify-end">
           {navItems.map(item => (
               <Link key={item.label} href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
                   {item.label}
@@ -119,25 +123,33 @@ export function AppHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2">
-                    <span>My Account</span>
-                    <ChevronDown className="h-4 w-4" />
-                </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild><Link href="/edit-profile"><User className="mr-2 h-4 w-4" /><span>Edit Profile</span></Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/switch-organization"><Building className="mr-2 h-4 w-4" /><span>Switch Organization</span></Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/notifications"><BellRing className="mr-2 h-4 w-4" /><span>Notifications</span></Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/report"><FileBarChart className="mr-2 h-4 w-4" /><span>Report</span></Link></DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="/forgot-password"><LockKeyhole className="mr-2 h-4 w-4" /><span>Reset Password</span></Link></DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2">
+                      <span>My Account</span>
+                      <ChevronDown className="h-4 w-4" />
+                  </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Edit Profile</span>
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+                    <DropdownMenuItem asChild><Link href="/switch-organization"><Building className="mr-2 h-4 w-4" /><span>Switch Organization</span></Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link href="/notifications"><BellRing className="mr-2 h-4 w-4" /><span>Notifications</span></Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link href="/report"><FileBarChart className="mr-2 h-4 w-4" /><span>Report</span></Link></DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild><Link href="/forgot-password"><LockKeyhole className="mr-2 h-4 w-4" /><span>Reset Password</span></Link></DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
+                  </DropdownMenuContent>
+              </DropdownMenu>
+              <EditProfileModal setOpen={setIsProfileModalOpen} />
+            </Dialog>
              <Button variant="ghost" size="icon" asChild>
                 <Link href="/notifications">
                   <Bell className="h-5 w-5"/>
