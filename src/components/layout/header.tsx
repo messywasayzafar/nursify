@@ -179,7 +179,7 @@ export function AppHeader() {
       </div>
 
       {/* Navigation Bar */}
-      <nav className="hidden md:flex h-12 items-center justify-between px-4 lg:px-6 border-b">
+      <nav className="hidden md:flex h-12 items-center justify-end px-4 lg:px-6 border-b">
         <div className="flex items-center gap-4">
           {navItems.map(item => (
             <Link key={item.href} href={item.href} className={cn(
