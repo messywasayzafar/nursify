@@ -181,18 +181,6 @@ export function AppHeader() {
       {/* Navigation Bar */}
       <nav className="hidden md:flex h-12 items-center justify-between px-4 lg:px-6 border-b">
         <div className="flex items-center gap-4">
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                    More Options
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
           {navItems.map(item => (
             <Link key={item.href} href={item.href} className={cn(
               "text-sm font-medium transition-colors hover:text-primary",
