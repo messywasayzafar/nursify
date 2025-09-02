@@ -10,10 +10,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ChatMessagesProps {
   selectedChat: Chat | null;
 }
+
+const templates = [
+  'Start Of Care - SOC',
+  'Resumption Of Care - ROC',
+  'Recertification',
+  'Transfer',
+  'Transfer Discharge',
+  'Discharge OASIS',
+  'Change Frequency',
+  'Therapy Evaluation',
+  'Therapy Reassessment',
+];
 
 export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   const [messages, setMessages] = useState<Message[]>(mockMessages);
@@ -42,6 +60,10 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
     };
     setMessages([...messages, newMsg]);
     setNewMessage('');
+  };
+
+  const handleTemplateSelect = (template: string) => {
+    setNewMessage(template);
   };
 
   if (!selectedChat) {
@@ -124,7 +146,20 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
             onChange={(e) => setNewMessage(e.target.value)}
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
-            <Button type="button" variant="ghost" size="icon"><ClipboardList /></Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="ghost" size="icon">
+                  <ClipboardList />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {templates.map((template) => (
+                  <DropdownMenuItem key={template} onSelect={() => handleTemplateSelect(template)}>
+                    {template}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button type="button" variant="ghost" size="icon"><Paperclip /></Button>
             <Button type="button" variant="ghost" size="icon"><Smile /></Button>
             <Button type="submit" size="icon" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 w-9 h-9">
