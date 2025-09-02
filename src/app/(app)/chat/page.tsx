@@ -31,9 +31,10 @@ export default function ChatPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Option 1</DropdownMenuItem>
-                <DropdownMenuItem>Option 2</DropdownMenuItem>
-                <DropdownMenuItem>Option 3</DropdownMenuItem>
+                <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
+                <DropdownMenuItem>New Internal Group</DropdownMenuItem>
+                <DropdownMenuItem>New Broadcast</DropdownMenuItem>
+                <DropdownMenuItem>Organizational Media</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
         </div>
