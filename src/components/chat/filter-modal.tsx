@@ -21,8 +21,8 @@ const roles = ['SN', 'PT', 'OT', 'SLP', 'MSW', 'HHA', 'RD'];
 
 export function FilterModal({ setOpen }: FilterModalProps) {
   return (
-    <DialogContent className="sm:max-w-sm">
-      <DialogHeader className="bg-primary text-primary-foreground p-4">
+    <DialogContent className="sm:max-w-sm p-0">
+      <DialogHeader className="p-4 bg-primary text-primary-foreground">
         <DialogTitle className="text-center text-lg">Filter</DialogTitle>
         <DialogClose asChild>
           <button className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
@@ -44,7 +44,7 @@ export function FilterModal({ setOpen }: FilterModalProps) {
           ))}
         </div>
       </div>
-      <DialogFooter className="p-4 border-t">
+      <DialogFooter className="p-4 border-t bg-muted/40">
         <Button variant="outline" onClick={() => setOpen(false)}>
           Cancel
         </Button>
