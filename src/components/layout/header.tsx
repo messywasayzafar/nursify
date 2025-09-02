@@ -67,7 +67,7 @@ export function AppHeader() {
       <div className="flex items-center gap-2 font-semibold">
         <Sheet>
             <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-primary/90 hover:text-primary-foreground">
+                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-primary/90 hover:text-primary-foreground md:hidden">
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Toggle navigation menu</span>
                 </Button>
