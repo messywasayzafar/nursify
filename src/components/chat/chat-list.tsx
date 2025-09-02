@@ -7,7 +7,9 @@ import { Search, UserCheck, UserMinus, UserPlus, Users, MessageSquare, Briefcase
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import type { Chat } from '@/lib/types';
+import { mockChats } from '@/lib/mock-data';
 
 const sidebarNavItems = [
     { name: 'Active patient', icon: UserCheck },
@@ -26,6 +28,11 @@ const patients = [
     { name: 'Dummy 5', disciplines: 'SN, PT, OT', episodeDate: '03/05/2025 - 05/05/2025', status: null },
     { name: 'Dummy 6', disciplines: 'SN, PT, OT', episodeDate: '03/20/2025 - 05/20/2025', status: 'Pending SOC' },
 ];
+
+interface ChatListProps {
+  selectedChat: Chat | null;
+  onSelectChat: (chat: Chat) => void;
+}
 
 function Sidebar() {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -51,8 +58,17 @@ function Sidebar() {
     );
 }
 
-function PatientList() {
+function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
     const [selectedIndex, setSelectedIndex] = useState(2);
+    
+    // Using mockChats for demonstration as patients array doesn't map to chat objects
+    const chats = mockChats;
+
+    const handleSelect = (chat: Chat, index: number) => {
+        onSelectChat(chat);
+        setSelectedIndex(index);
+    }
+    
     return (
         <div className="flex-1">
             <div className="p-4 border-b">
@@ -92,11 +108,11 @@ function PatientList() {
     );
 }
 
-export function ChatList() {
+export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
     return (
         <Card className="h-full flex flex-row p-0">
             <Sidebar />
-            <PatientList />
+            <PatientList selectedChat={selectedChat} onSelectChat={onSelectChat} />
         </Card>
     );
 }
