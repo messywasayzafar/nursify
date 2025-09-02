@@ -42,7 +42,6 @@ const navItems = [
     { href: '/chat', label: 'Chats' },
     { href: '/billing', label: 'Billing' },
     { href: '/orders', label: 'Orders' },
-    { href: '/referrals', label: 'Referrals' },
 ];
 
 const PageTitleContext = createContext({
