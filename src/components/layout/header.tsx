@@ -253,11 +253,6 @@ export function AppHeader() {
       {/* Page Title Bar */}
       <div className="flex h-12 items-center justify-between px-4 lg:px-6 bg-muted/40">
         <h1 className="text-lg font-semibold">{pageTitle}</h1>
-        <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon"><CircleUser className="h-5 w-5"/></Button>
-            <Button variant="ghost" size="icon"><CircleHelp className="h-5 w-5"/></Button>
-            <Button variant="ghost" size="icon"><CircleX className="h-5 w-5"/></Button>
-        </div>
       </div>
     </header>
   );
