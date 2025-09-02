@@ -92,7 +92,7 @@ export function PatientGroupsReportModal({ setOpen }: PatientGroupsReportModalPr
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="discharge">Discharge</SelectItem>
                     <SelectItem value="transfer">Transfer</SelectItem>
                   </SelectContent>
                 </Select>
