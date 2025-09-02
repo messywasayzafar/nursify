@@ -17,6 +17,7 @@ import {
   CircleHelp,
   CircleUser,
   CircleX,
+  LayoutDashboard,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -197,6 +198,18 @@ export function AppHeader() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>My Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/users">
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>User</span>
+                  </Link>
+                </DropdownMenuItem>
                 <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
                   <DialogTrigger asChild>
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
