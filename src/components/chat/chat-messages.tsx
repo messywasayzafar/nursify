@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import type { Chat, Message } from '@/lib/types';
 import { mockMessages } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { Send, Paperclip, Smile, Search } from 'lucide-react';
+import { Send, Paperclip, Smile, Search, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -119,11 +119,12 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
         <form onSubmit={handleSendMessage} className="relative">
           <Input
             placeholder="Type a message..."
-            className="pr-24 bg-background h-12 rounded-full"
+            className="pr-32 bg-background h-12 rounded-full"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+            <Button type="button" variant="ghost" size="icon"><ClipboardList /></Button>
             <Button type="button" variant="ghost" size="icon"><Paperclip /></Button>
             <Button type="button" variant="ghost" size="icon"><Smile /></Button>
             <Button type="submit" size="icon" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 w-9 h-9">
