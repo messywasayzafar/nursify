@@ -11,10 +11,10 @@ export default function ChatPage() {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(mockChats[2]);
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
-      <div className="col-span-1">
+      <div className="col-span-1 h-full">
         <ChatList selectedChat={selectedChat} onSelectChat={setSelectedChat} />
       </div>
-      <div className="col-span-1 md:col-span-2">
+      <div className="col-span-1 md:col-span-2 h-full">
         <ChatMessages selectedChat={selectedChat} />
       </div>
     </div>

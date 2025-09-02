@@ -54,20 +54,20 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   return (
     <div className="flex h-full flex-col rounded-lg border bg-card">
       <div className="border-b p-2 bg-muted/40">
-        <div className="grid grid-cols-12 gap-x-4 items-center">
-            <div className="col-span-3 space-y-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-4 gap-y-2 items-center">
+            <div className="lg:col-span-3 space-y-1">
                 <p className="text-sm font-semibold">Patient Name : Dummy 3</p>
                 <p className="text-sm">Physician Name:</p>
                 <p className="text-sm">SN, PT, OT</p>
                 <p className="text-sm">Insurance:</p>
             </div>
-            <div className="col-span-3 space-y-1">
+            <div className="lg:col-span-3 space-y-1">
                 <p className="text-sm">Start Of Care Date: 06/14/2025</p>
                 <p className="text-sm">Episode Date: 6/14/2025 - 08/12/2025</p>
                 <p className="text-sm">Contacts:</p>
             </div>
-            <div className="col-span-6 flex justify-end items-center gap-2">
-                <div className="relative w-full max-w-xs">
+            <div className="lg:col-span-6 flex flex-col sm:flex-row justify-end items-center gap-2">
+                <div className="relative w-full sm:w-auto sm:max-w-xs">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search messages..."
@@ -76,7 +76,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <Button variant="outline" className="border-primary text-primary">Edit Patient Profile</Button>
+                <Button variant="outline" className="border-primary text-primary w-full sm:w-auto">Edit Patient Profile</Button>
             </div>
         </div>
       </div>
@@ -98,7 +98,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
               )}
               <div
                 className={cn(
-                  'max-w-md rounded-lg p-3',
+                  'max-w-[80%] sm:max-w-md rounded-lg p-3',
                   message.sender === 'You'
                     ? 'bg-primary text-primary-foreground rounded-br-none'
                     : 'bg-muted rounded-bl-none',
@@ -106,7 +106,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                 )}
               >
                 {message.isPatient && <p className="text-xs font-bold mb-1">From Patient</p>}
-                <p className="text-sm">{message.content}</p>
+                <p className="text-sm break-words">{message.content}</p>
                 <p className="mt-1 text-right text-xs opacity-70">{message.timestamp}</p>
               </div>
             </div>

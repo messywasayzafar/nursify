@@ -37,7 +37,7 @@ interface ChatListProps {
 function Sidebar() {
     const [activeIndex, setActiveIndex] = useState(0);
     return (
-        <div className="w-1/4 bg-muted/40 p-2 space-y-2 flex flex-col items-center">
+        <div className="bg-muted/40 p-2 space-y-2 flex flex-col items-center">
             {sidebarNavItems.map((item, index) => (
                 <Button
                     key={item.name}
@@ -49,7 +49,7 @@ function Sidebar() {
                         "rounded-full h-10 w-10 flex items-center justify-center mb-1",
                         activeIndex === index ? 'bg-primary text-primary-foreground' : 'bg-gray-300'
                     )}>
-                        <item.icon className="h-5 w-5" />
+                        <item.icon className="h-4 w-4" />
                     </div>
                     <span className="text-xs text-center">{item.name}</span>
                 </Button>
@@ -70,14 +70,14 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
     }
     
     return (
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col">
             <div className="p-4 border-b">
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search Patients" className="pl-8" />
                 </div>
             </div>
-            <ScrollArea className="h-[calc(100vh-14rem)]">
+            <ScrollArea className="h-0 flex-grow">
                 <div className="p-2 space-y-2">
                     {patients.map((patient, index) => (
                         <button
@@ -95,7 +95,7 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
                                     <p className="text-sm">Episode Date: {patient.episodeDate}</p>
                                 </div>
                                 {patient.status && (
-                                    <div className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded">
+                                    <div className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded shrink-0 ml-2">
                                         {patient.status}
                                     </div>
                                 )}
@@ -110,7 +110,7 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
 
 export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
     return (
-        <Card className="h-full flex flex-row p-0">
+        <Card className="h-full flex flex-row p-0 overflow-hidden">
             <Sidebar />
             <PatientList selectedChat={selectedChat} onSelectChat={onSelectChat} />
         </Card>
