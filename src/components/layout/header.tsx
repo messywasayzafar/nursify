@@ -118,7 +118,7 @@ export function AppHeader() {
         <div className="flex flex-1 items-center justify-end gap-4">
           <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2 text-right">
+                  <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2 text-right hover:bg-transparent">
                       <div>
                           <p className="font-semibold">Noman Nizam,</p>
                           <p className="text-sm text-muted-foreground">Intake</p>
