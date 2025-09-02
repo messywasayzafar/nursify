@@ -189,6 +189,64 @@ export function AppHeader() {
               {item.label}
             </Link>
           ))}
+           <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary">
+                  My Account
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Edit Profile</span>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <EditProfileModal setOpen={setIsProfileModalOpen} />
+                </Dialog>
+                <Dialog open={isSwitchOrgModalOpen} onOpenChange={setIsSwitchOrgModalOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Building className="mr-2 h-4 w-4" />
+                      <span>Switch Organization</span>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <SwitchOrganizationModal setOpen={setIsSwitchOrgModalOpen} />
+                </Dialog>
+                <Dialog open={isNotificationSettingsModalOpen} onOpenChange={setIsNotificationSettingsModalOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <BellRing className="mr-2 h-4 w-4" />
+                      <span>Notifications</span>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
+                </Dialog>
+                <DropdownMenuSeparator />
+                 <Dialog open={isReportCenterModalOpen} onOpenChange={setIsReportCenterModalOpen}>
+                    <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <FileBarChart className="mr-2 h-4 w-4" />
+                        <span>Report Center</span>
+                    </DropdownMenuItem>
+                    </DialogTrigger>
+                    <ReportCenterModal setOpen={setIsReportCenterModalOpen} />
+                </Dialog>
+                <DropdownMenuSeparator />
+                <Dialog open={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <LockKeyhole className="mr-2 h-4 w-4" />
+                      <span>Reset Password</span>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <ResetPasswordModal setOpen={setIsResetPasswordModalOpen} />
+                </Dialog>
+                <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </nav>
 
