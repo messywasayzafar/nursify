@@ -54,43 +54,32 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
 
   return (
     <div className="flex h-full flex-col rounded-lg border bg-card">
-      <div className="border-b p-2 bg-muted/40 space-y-2">
-        {/* Top section */}
-        <div className="flex flex-wrap justify-between items-center gap-2">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                <p className="text-sm font-semibold">Patient Name : Dummy 3</p>
-                <p className="text-sm">Physician Name:</p>
-                <p className="text-sm">SN, PT, OT</p>
-                <p className="text-sm">Insurance:</p>
-            </div>
-            <div className="flex items-center gap-2">
-                <div className="relative w-full sm:w-auto sm:max-w-xs flex items-center justify-end">
-                    {isSearchVisible ? (
-                        <div className="relative w-full sm:w-auto">
-                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search messages..."
-                                className="pl-8 h-9"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onBlur={() => setIsSearchVisible(false)}
-                                autoFocus
-                            />
-                        </div>
-                    ) : (
-                        <Button variant="ghost" size="icon" onClick={() => setIsSearchVisible(true)}>
-                            <Search className="h-5 w-5" />
-                        </Button>
-                    )}
-                </div>
-                <Button variant="outline" className="border-primary text-primary w-full sm:w-auto">Edit Patient Profile</Button>
-            </div>
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b p-4">
+        <div className="grid gap-1">
+          <p className="font-semibold">Patient: {selectedChat.name}</p>
+          <p className="text-sm text-muted-foreground">
+            SOC: 06/14/2025 | Episode: 6/14/2025 - 08/12/2025
+          </p>
         </div>
-        {/* Bottom section */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <p className="text-sm">Start Of Care Date: 06/14/2025</p>
-            <p className="text-sm">Episode Date: 6/14/2025 - 08/12/2025</p>
-            <p className="text-sm">Contacts:</p>
+        <div className="flex items-center gap-2">
+          {isSearchVisible ? (
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search messages..."
+                className="pl-8 h-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onBlur={() => setIsSearchVisible(false)}
+                autoFocus
+              />
+            </div>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={() => setIsSearchVisible(true)}>
+              <Search className="h-5 w-5" />
+            </Button>
+          )}
+          <Button variant="outline">Edit Patient</Button>
         </div>
       </div>
       <ScrollArea className="flex-1 p-4">
