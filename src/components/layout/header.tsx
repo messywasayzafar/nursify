@@ -196,7 +196,7 @@ export function AppHeader() {
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" className="w-56">
                 <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
                   <DialogTrigger asChild>
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
