@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Search, UserCheck, UserMinus, UserPlus, Users, MessageSquare, Briefcase, ChevronDown } from 'lucide-react';
+import { Search, UserCheck, UserMinus, UserPlus, Users, MessageSquare, Briefcase, ChevronDown, AlertCircle, CheckCircle, Star, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -16,6 +16,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const sidebarNavItems = [
     { name: 'Active patient', icon: UserCheck },
@@ -84,6 +85,42 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search Patients" className="pl-8" />
+                </div>
+                <div className="flex justify-around">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon"><AlertCircle /></Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Priority Message</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon"><CheckCircle /></Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Acknowledged Message</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon"><Star /></Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Starred Message</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon"><Filter /></Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Filter</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
             </div>
             <ScrollArea className="h-0 flex-grow">
