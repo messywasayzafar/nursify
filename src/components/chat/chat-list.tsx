@@ -81,11 +81,6 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
     return (
         <div className="flex-1 flex flex-col">
             <div className="p-4 border-b space-y-4">
-                <ChatTypeDropdown />
-                <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search Patients" className="pl-8" />
-                </div>
                 <div className="flex justify-around">
                     <TooltipProvider>
                         <Tooltip>
@@ -121,6 +116,11 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
+                </div>
+                <ChatTypeDropdown />
+                <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search Patients" className="pl-8" />
                 </div>
             </div>
             <ScrollArea className="h-0 flex-grow">
