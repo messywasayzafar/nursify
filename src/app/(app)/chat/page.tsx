@@ -22,7 +22,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-full">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-start mb-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
@@ -30,7 +30,7 @@ export default function ChatPage() {
                   More Options
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="start">
                 <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
                 <DropdownMenuItem>New Internal Group</DropdownMenuItem>
                 <DropdownMenuItem>New Broadcast</DropdownMenuItem>
