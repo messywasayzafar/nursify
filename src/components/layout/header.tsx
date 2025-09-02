@@ -42,7 +42,6 @@ const navItems = [
     { href: '/chat', label: 'Chats' },
     { href: '/billing', label: 'Billing' },
     { href: '/orders', label: 'Orders' },
-    { href: '/follow-ups', label: 'Follow Ups'},
     { href: '/referrals', label: 'Referrals' },
 ];
 
