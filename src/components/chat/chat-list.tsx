@@ -46,10 +46,10 @@ function Sidebar() {
                     onClick={() => setActiveIndex(index)}
                 >
                     <div className={cn(
-                        "rounded-full h-6 w-6 flex items-center justify-center mb-1",
+                        "rounded-full h-8 w-8 flex items-center justify-center mb-1",
                         activeIndex === index ? 'bg-primary text-primary-foreground' : 'bg-gray-300'
                     )}>
-                        <item.icon className="h-3 w-3" />
+                        <item.icon className="h-4 w-4" />
                     </div>
                     <span className="text-xs text-center">{item.name}</span>
                 </Button>
