@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useRouter, usePathname } from 'next/navigation';
-import { Dialog } from '@/components/ui/dialog';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { EditProfileModal } from '../profile/edit-profile-modal';
 import React, { createContext, useContext, useState } from 'react';
 import { SwitchOrganizationModal } from '../profile/switch-organization-modal';
