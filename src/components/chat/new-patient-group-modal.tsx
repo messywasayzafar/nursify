@@ -28,7 +28,7 @@ interface NewPatientGroupModalProps {
 
 export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
   return (
-    <DialogContent className="sm:max-w-4xl">
+    <DialogContent className="sm:max-w-2xl">
       <DialogHeader className="bg-primary text-primary-foreground p-4">
         <DialogTitle className="text-center text-xl">New Patient Group</DialogTitle>
         <DialogClose asChild>
@@ -42,7 +42,7 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
         {/* Patient Details */}
         <div className="space-y-4">
           <h3 className="font-semibold text-lg">Patient Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="full-name">Full Name*</Label>
               <Input id="full-name" defaultValue="Cook Robert" />
@@ -87,7 +87,7 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
                 <Input id="emergency-contact" type="tel" defaultValue="(123) 456-7890" />
               </div>
             </div>
-             <div className="grid gap-2">
+             <div className="grid gap-2 md:col-span-2">
               <Label htmlFor="home-address">Home Address*</Label>
               <Input id="home-address" defaultValue="123 N Halfway" />
             </div>
@@ -118,7 +118,7 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
         {/* Physician Details */}
         <div className="space-y-4">
           <h3 className="font-semibold text-lg">Physician Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="primary-physician">Primary Physician Name*</Label>
               <Input id="primary-physician" defaultValue="Dr. Suleman" />
@@ -130,6 +130,10 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
             <div className="grid gap-2">
               <Label htmlFor="secondary-physician">Secondary Physician Name</Label>
               <Input id="secondary-physician" />
+            </div>
+             <div className="grid gap-2">
+              <Label htmlFor="hh-order-date">HH Order Date*</Label>
+              <Input id="hh-order-date" type="date" defaultValue="2025-07-01" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="physician-contact">Contact Number*</Label>
@@ -144,10 +148,6 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
                 </Select>
                 <Input id="physician-contact" type="tel" defaultValue="(123) 456-7890" />
               </div>
-            </div>
-             <div className="grid gap-2">
-              <Label htmlFor="hh-order-date">HH Order Date*</Label>
-              <Input id="hh-order-date" type="date" defaultValue="2025-07-01" />
             </div>
              <div className="grid gap-2">
               <Label htmlFor="secondary-physician-contact">Contact Number</Label>
