@@ -177,20 +177,6 @@ export function AppHeader() {
                 <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
               </DropdownMenuContent>
           </DropdownMenu>
-
-          <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2 h-auto py-1 px-3">
-                      <span>My Account</span>
-                      <ChevronDown className="h-4 w-4" />
-                  </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                  {/* My Account Dropdown Items Here */}
-                  <DropdownMenuItem>Account Settings</DropdownMenuItem>
-                  <DropdownMenuItem>Help Center</DropdownMenuItem>
-              </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
