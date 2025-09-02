@@ -5,7 +5,7 @@ import { useState } from 'react';
 import type { Chat, Message } from '@/lib/types';
 import { mockMessages } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { Send, Paperclip, Smile, Phone, Video, Info, User, Users } from 'lucide-react';
+import { Send, Paperclip, Smile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -43,24 +43,22 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
 
   return (
     <div className="flex h-full flex-col rounded-lg border bg-card">
-      <div className="flex items-center gap-4 border-b p-4">
-        <Avatar className="h-12 w-12 border-2 border-background ring-2 ring-green-500">
-          <AvatarImage src={selectedChat.avatar} alt={selectedChat.name} />
-          <AvatarFallback>
-            {selectedChat.type === 'group' ? <Users /> : <User />}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <p className="text-lg font-bold">{selectedChat.name}</p>
-          <p className="text-sm text-green-500 flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-green-500"></span>
-            Active Now
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon"><Phone /></Button>
-          <Button variant="ghost" size="icon"><Video /></Button>
-          <Button variant="ghost" size="icon"><Info /></Button>
+      <div className="border-b p-2 bg-muted/40">
+        <div className="grid grid-cols-12 gap-x-4 items-center">
+            <div className="col-span-3 space-y-1">
+                <p className="text-sm font-semibold">Patient Name : Dummy 3</p>
+                <p className="text-sm">Physician Name:</p>
+                <p className="text-sm">SN, PT, OT</p>
+                <p className="text-sm">Insurance:</p>
+            </div>
+            <div className="col-span-4 space-y-1">
+                <p className="text-sm">Start Of Care Date: 06/14/2025</p>
+                <p className="text-sm">Episode Date: 6/14/2025 - 08/12/2025</p>
+                <p className="text-sm">Contacts:</p>
+            </div>
+            <div className="col-span-5 flex justify-end">
+                <Button variant="outline" className="border-primary text-primary">Edit Patient Profile Logo</Button>
+            </div>
         </div>
       </div>
       <ScrollArea className="flex-1 p-4">
