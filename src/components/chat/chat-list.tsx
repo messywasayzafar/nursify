@@ -46,7 +46,7 @@ function Sidebar() {
                     onClick={() => setActiveIndex(index)}
                 >
                     <div className={cn(
-                        "rounded-full h-10 w-10 flex items-center justify-center mb-1",
+                        "rounded-full h-8 w-8 flex items-center justify-center mb-1",
                         activeIndex === index ? 'bg-primary text-primary-foreground' : 'bg-gray-300'
                     )}>
                         <item.icon className="h-4 w-4" />
@@ -88,14 +88,14 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
                                 selectedIndex === index ? "bg-primary text-primary-foreground" : "bg-card"
                             )}
                         >
-                            <div className="flex justify-between items-start">
-                                <div>
+                            <div className="flex flex-wrap sm:flex-nowrap justify-between items-start gap-2">
+                                <div className="flex-grow">
                                     <p className="font-semibold">Patient Name: {patient.name}</p>
                                     <p className="text-sm">SN, PT, OT: {patient.disciplines}</p>
                                     <p className="text-sm">Episode Date: {patient.episodeDate}</p>
                                 </div>
                                 {patient.status && (
-                                    <div className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded shrink-0 ml-2">
+                                    <div className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded shrink-0 mt-1 sm:mt-0">
                                         {patient.status}
                                     </div>
                                 )}
