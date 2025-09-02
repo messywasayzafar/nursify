@@ -28,8 +28,8 @@ interface NewPatientGroupModalProps {
 
 export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
   return (
-    <DialogContent className="sm:max-w-2xl">
-      <DialogHeader className="bg-primary text-primary-foreground p-4">
+    <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+      <DialogHeader className="bg-primary text-primary-foreground p-4 flex-shrink-0">
         <DialogTitle className="text-center text-xl">New Patient Group</DialogTitle>
         <DialogClose asChild>
           <button className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
@@ -38,24 +38,24 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
           </button>
         </DialogClose>
       </DialogHeader>
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4 overflow-y-auto">
         {/* Patient Details */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <h3 className="font-semibold text-lg">Patient Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
               <Label htmlFor="full-name">Full Name*</Label>
               <Input id="full-name" defaultValue="Cook Robert" />
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <Label htmlFor="dob">Date of Birth*</Label>
               <Input id="dob" type="date" defaultValue="1965-10-22" />
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <Label htmlFor="insurance">Insurance*</Label>
               <Input id="insurance" defaultValue="Medicare" />
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <Label htmlFor="contact-number">Contact Number*</Label>
               <div className="flex gap-2">
                 <Select defaultValue="us">
@@ -69,12 +69,12 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
                 <Input id="contact-number" type="tel" defaultValue="(123) 456-7890" />
               </div>
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <Label htmlFor="emergency-person">Emergency Person Name</Label>
               <Input id="emergency-person" defaultValue="Nicki Robert" />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="emergency-contact">Emergency Person Contact Number</Label>
+            <div className="grid gap-1.5">
+              <Label htmlFor="emergency-contact">Emergency Person Contact</Label>
               <div className="flex gap-2">
                 <Select defaultValue="us">
                   <SelectTrigger className="w-[100px]">
@@ -87,16 +87,16 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
                 <Input id="emergency-contact" type="tel" defaultValue="(123) 456-7890" />
               </div>
             </div>
-             <div className="grid gap-2 md:col-span-2">
+             <div className="grid gap-1.5 md:col-span-2">
               <Label htmlFor="home-address">Home Address*</Label>
               <Input id="home-address" defaultValue="123 N Halfway" />
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <Label htmlFor="city">City*</Label>
               <Input id="city" defaultValue="Glenheights" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
+            <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-1.5">
                     <Label htmlFor="state">State*</Label>
                     <Select defaultValue="il">
                         <SelectTrigger id="state">
@@ -107,7 +107,7 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="grid gap-2">
+                <div className="grid gap-1.5">
                     <Label htmlFor="zip-code">Zip Code*</Label>
                     <Input id="zip-code" defaultValue="60139" />
                 </div>
@@ -116,26 +116,18 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
         </div>
 
         {/* Physician Details */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <h3 className="font-semibold text-lg">Physician Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
               <Label htmlFor="primary-physician">Primary Physician Name*</Label>
               <Input id="primary-physician" defaultValue="Dr. Suleman" />
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <Label htmlFor="f2f-date">Last Face to Face Date*</Label>
               <Input id="f2f-date" type="date" defaultValue="2025-06-12" />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="secondary-physician">Secondary Physician Name</Label>
-              <Input id="secondary-physician" />
-            </div>
-             <div className="grid gap-2">
-              <Label htmlFor="hh-order-date">HH Order Date*</Label>
-              <Input id="hh-order-date" type="date" defaultValue="2025-07-01" />
-            </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <Label htmlFor="physician-contact">Contact Number*</Label>
                <div className="flex gap-2">
                 <Select defaultValue="us">
@@ -149,57 +141,47 @@ export function NewPatientGroupModal({ setOpen }: NewPatientGroupModalProps) {
                 <Input id="physician-contact" type="tel" defaultValue="(123) 456-7890" />
               </div>
             </div>
-             <div className="grid gap-2">
-              <Label htmlFor="secondary-physician-contact">Contact Number</Label>
-               <div className="flex gap-2">
-                <Select defaultValue="us">
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="us">(+1) USA</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input id="secondary-physician-contact" type="tel" />
-              </div>
+             <div className="grid gap-1.5">
+              <Label htmlFor="hh-order-date">HH Order Date*</Label>
+              <Input id="hh-order-date" type="date" defaultValue="2025-07-01" />
             </div>
           </div>
         </div>
         
         {/* Other Details */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="grid gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid gap-1.5">
                 <Label>Who will Do the SOC*</Label>
                 <RadioGroup defaultValue="sn" className="flex gap-4 pt-2">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="sn" id="sn" />
-                        <Label htmlFor="sn">SN</Label>
+                        <Label htmlFor="sn" className="font-normal">SN</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="ot" id="ot" />
-                        <Label htmlFor="ot">OT</Label>
+                        <Label htmlFor="ot" className="font-normal">OT</Label>
                     </div>
                      <div className="flex items-center space-x-2">
                         <RadioGroupItem value="pt" id="pt" />
-                        <Label htmlFor="pt">PT</Label>
+                        <Label htmlFor="pt" className="font-normal">PT</Label>
                     </div>
                 </RadioGroup>
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
                 <Label htmlFor="referral-source">Referral Source</Label>
                 <Input id="referral-source" defaultValue="Rosery Hill" />
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
                 <Label htmlFor="patient-tag">Patient Tag</Label>
                 <Input id="patient-tag" />
             </div>
         </div>
-        <div className="grid gap-2">
+        <div className="grid gap-1.5">
             <Label htmlFor="about">About</Label>
-            <Textarea id="about" defaultValue="Patient want to come from back door" />
+            <Textarea id="about" defaultValue="Patient want to come from back door" rows={2} />
         </div>
       </div>
-      <DialogFooter className="p-6 pt-0 flex justify-between w-full">
+      <DialogFooter className="p-4 pt-0 flex-shrink-0 flex justify-between w-full">
         <div>
             <Button variant="outline">Attachment</Button>
         </div>
