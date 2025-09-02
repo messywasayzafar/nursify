@@ -83,7 +83,7 @@ export function AppHeader() {
     <header className="flex flex-col border-b bg-card">
       {/* Top Bar */}
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 border-b">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-1 items-center gap-4">
           <NursifyLogo />
           <Sheet>
             <SheetTrigger asChild>
@@ -111,10 +111,10 @@ export function AppHeader() {
             </SheetContent>
           </Sheet>
         </div>
-        <div className="text-xl font-bold">
+        <div className="flex flex-1 justify-center text-xl font-bold">
           Agency Name
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-1 items-center justify-end gap-4">
           <DropdownMenu>
               <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2 text-right">
