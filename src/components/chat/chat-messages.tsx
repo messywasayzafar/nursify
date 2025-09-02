@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Chat, Message } from '@/lib/types';
 import { mockMessages } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { Send, Paperclip, Smile } from 'lucide-react';
+import { Send, Paperclip, Smile, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -18,6 +18,16 @@ interface ChatMessagesProps {
 export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [newMessage, setNewMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredMessages = useMemo(() => {
+    if (!searchTerm) {
+      return messages;
+    }
+    return messages.filter((message) =>
+      message.content.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [messages, searchTerm]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,19 +61,28 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                 <p className="text-sm">SN, PT, OT</p>
                 <p className="text-sm">Insurance:</p>
             </div>
-            <div className="col-span-4 space-y-1">
+            <div className="col-span-3 space-y-1">
                 <p className="text-sm">Start Of Care Date: 06/14/2025</p>
                 <p className="text-sm">Episode Date: 6/14/2025 - 08/12/2025</p>
                 <p className="text-sm">Contacts:</p>
             </div>
-            <div className="col-span-5 flex justify-end">
-                <Button variant="outline" className="border-primary text-primary">Edit Patient Profile Logo</Button>
+            <div className="col-span-6 flex justify-end items-center gap-2">
+                <div className="relative w-full max-w-xs">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search messages..."
+                        className="pl-8 h-9"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <Button variant="outline" className="border-primary text-primary">Edit Patient Profile</Button>
             </div>
         </div>
       </div>
       <ScrollArea className="flex-1 p-4">
         <div className="flex flex-col gap-4">
-          {messages.map((message) => (
+          {filteredMessages.map((message) => (
             <div
               key={message.id}
               className={cn(
