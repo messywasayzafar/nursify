@@ -13,19 +13,20 @@ import { Button } from '@/components/ui/button';
 import { PatientGroupsReportModal } from './patient-groups-report-modal';
 import { FieldStaffReportModal } from './field-staff-report-modal';
 import { OfficeStaffReportModal } from './office-staff-report-modal';
+import { InternalGroupsReportModal } from './internal-groups-report-modal';
 
 interface ReportCenterModalProps {
   setOpen: (open: boolean) => void;
 }
 
 const reportButtons = [
-  'Internal Groups',
 ];
 
 export function ReportCenterModal({ setOpen }: ReportCenterModalProps) {
   const [isPatientGroupModalOpen, setIsPatientGroupModalOpen] = React.useState(false);
   const [isFieldStaffModalOpen, setIsFieldStaffModalOpen] = React.useState(false);
   const [isOfficeStaffModalOpen, setIsOfficeStaffModalOpen] = React.useState(false);
+  const [isInternalGroupsModalOpen, setIsInternalGroupsModalOpen] = React.useState(false);
 
   return (
     <>
@@ -66,6 +67,16 @@ export function ReportCenterModal({ setOpen }: ReportCenterModalProps) {
                 Patient Groups
               </Button>
           </DialogTrigger>
+           <Button
+              variant="outline"
+              className="w-full justify-center h-12 text-md"
+              onClick={() => {
+                setOpen(false);
+                setIsInternalGroupsModalOpen(true);
+              }}
+            >
+              Internal Groups
+            </Button>
 
           {reportButtons.map((buttonLabel) => (
             <Button
@@ -92,6 +103,9 @@ export function ReportCenterModal({ setOpen }: ReportCenterModalProps) {
       </Dialog>
       <Dialog open={isOfficeStaffModalOpen} onOpenChange={setIsOfficeStaffModalOpen}>
         <OfficeStaffReportModal setOpen={setIsOfficeStaffModalOpen} />
+      </Dialog>
+      <Dialog open={isInternalGroupsModalOpen} onOpenChange={setIsInternalGroupsModalOpen}>
+        <InternalGroupsReportModal setOpen={setIsInternalGroupsModalOpen} />
       </Dialog>
     </>
   );
