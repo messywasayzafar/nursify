@@ -54,20 +54,16 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
 
   return (
     <div className="flex h-full flex-col rounded-lg border bg-card">
-      <div className="border-b p-2 bg-muted/40">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-4 gap-y-2 items-center">
-            <div className="lg:col-span-3 space-y-1">
+      <div className="border-b p-2 bg-muted/40 space-y-2">
+        {/* Top section */}
+        <div className="flex flex-wrap justify-between items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                 <p className="text-sm font-semibold">Patient Name : Dummy 3</p>
                 <p className="text-sm">Physician Name:</p>
                 <p className="text-sm">SN, PT, OT</p>
                 <p className="text-sm">Insurance:</p>
             </div>
-            <div className="lg:col-span-3 space-y-1">
-                <p className="text-sm">Start Of Care Date: 06/14/2025</p>
-                <p className="text-sm">Episode Date: 6/14/2025 - 08/12/2025</p>
-                <p className="text-sm">Contacts:</p>
-            </div>
-            <div className="lg:col-span-6 flex flex-col sm:flex-row justify-end items-center gap-2">
+            <div className="flex items-center gap-2">
                 <div className="relative w-full sm:w-auto sm:max-w-xs flex items-center justify-end">
                     {isSearchVisible ? (
                         <div className="relative w-full sm:w-auto">
@@ -89,6 +85,12 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                 </div>
                 <Button variant="outline" className="border-primary text-primary w-full sm:w-auto">Edit Patient Profile</Button>
             </div>
+        </div>
+        {/* Bottom section */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <p className="text-sm">Start Of Care Date: 06/14/2025</p>
+            <p className="text-sm">Episode Date: 6/14/2025 - 08/12/2025</p>
+            <p className="text-sm">Contacts:</p>
         </div>
       </div>
       <ScrollArea className="flex-1 p-4">
