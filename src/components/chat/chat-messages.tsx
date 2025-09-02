@@ -19,6 +19,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const filteredMessages = useMemo(() => {
     if (!searchTerm) {
@@ -67,14 +68,24 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                 <p className="text-sm">Contacts:</p>
             </div>
             <div className="lg:col-span-6 flex flex-col sm:flex-row justify-end items-center gap-2">
-                <div className="relative w-full sm:w-auto sm:max-w-xs">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search messages..."
-                        className="pl-8 h-9"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div className="relative w-full sm:w-auto sm:max-w-xs flex items-center justify-end">
+                    {isSearchVisible ? (
+                        <div className="relative w-full sm:w-auto">
+                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search messages..."
+                                className="pl-8 h-9"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onBlur={() => setIsSearchVisible(false)}
+                                autoFocus
+                            />
+                        </div>
+                    ) : (
+                        <Button variant="ghost" size="icon" onClick={() => setIsSearchVisible(true)}>
+                            <Search className="h-5 w-5" />
+                        </Button>
+                    )}
                 </div>
                 <Button variant="outline" className="border-primary text-primary w-full sm:w-auto">Edit Patient Profile</Button>
             </div>
