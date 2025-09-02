@@ -63,77 +63,69 @@ export function AppHeader() {
   };
 
   return (
-    <header className="flex flex-col border-b bg-muted/40">
-      <div className="flex h-14 items-center justify-between px-4 lg:px-6">
-        <div className="flex items-center gap-2 font-semibold">
-          <Stethoscope className="h-6 w-6 text-primary" />
-          <span className="hidden md:inline">Nursify Portal</span>
-        </div>
-
-        <div className="flex-1 text-center text-xl font-bold">
-          Agency Name
-        </div>
-        
-        <div className="flex items-center gap-4">
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-auto p-0">
-                <div className="text-right">
-                  <p className="font-semibold">Noman Nizam</p>
-                  <p className="text-xs text-muted-foreground">Intake</p>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>More Options...</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
+    <header className="flex h-16 items-center justify-between border-b bg-primary px-4 text-primary-foreground lg:px-6">
+      <div className="flex items-center gap-2 font-semibold">
         <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0 md:hidden ml-4">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle navigation menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="flex flex-col">
-            <nav className="grid gap-2 text-lg font-medium">
-              <Link
-                href="#"
-                className="flex items-center gap-2 text-lg font-semibold mb-4"
-              >
-                <Stethoscope className="h-6 w-6 text-primary" />
-                <span>Nursify Portal</span>
-              </Link>
-              {navItems.map((item) => (
-                  <Link
-                      key={item.label}
-                      href={item.href}
-                      className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                  >
-                      {item.label}
-                  </Link>
-              ))}
-            </nav>
-          </SheetContent>
+            <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-primary/90 hover:text-primary-foreground">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col">
+                <nav className="grid gap-2 text-lg font-medium">
+                <Link
+                    href="#"
+                    className="flex items-center gap-2 text-lg font-semibold mb-4 text-foreground"
+                >
+                    <Stethoscope className="h-6 w-6 text-primary" />
+                    <span>Nursify Portal</span>
+                </Link>
+                {navItems.map((item) => (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                    >
+                        {item.label}
+                    </Link>
+                ))}
+                </nav>
+            </SheetContent>
         </Sheet>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="hidden md:flex hover:bg-primary/90 hover:text-primary-foreground">
+                    More Options
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <Dialog open={isReportCenterModalOpen} onOpenChange={setIsReportCenterModalOpen}>
+                    <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <FileBarChart className="mr-2 h-4 w-4" />
+                        <span>Report Center</span>
+                    </DropdownMenuItem>
+                    </DialogTrigger>
+                    <ReportCenterModal setOpen={setIsReportCenterModalOpen} />
+                </Dialog>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <div className="h-14 items-center gap-4 border-t bg-background px-4 lg:px-6 hidden md:flex">
-        <nav className="flex flex-1 items-center gap-5 lg:gap-6 text-sm font-medium justify-end">
-          {navItems.map(item => (
-              <Link key={item.label} href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
-                  {item.label}
-              </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
+      <div className="text-xl font-bold">
+        Chats
+      </div>
+      
+      <div className="flex items-center gap-2">
             <Dialog>
               <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2">
+                  <Button variant="ghost" className="flex items-center gap-1 h-auto py-1 px-2 hover:bg-primary/90 hover:text-primary-foreground">
                       <span>My Account</span>
                       <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -157,8 +149,6 @@ export function AppHeader() {
                       </DialogTrigger>
                       <SwitchOrganizationModal setOpen={setIsSwitchOrgModalOpen} />
                     </Dialog>
-                    <DropdownMenuItem asChild><Link href="/dashboard"><Home className="mr-2 h-4 w-4" /><span>My Dashboard</span></Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/users"><Users className="mr-2 h-4 w-4" /><span>Users</span></Link></DropdownMenuItem>
                     <Dialog open={isNotificationSettingsModalOpen} onOpenChange={setIsNotificationSettingsModalOpen}>
                       <DialogTrigger asChild>
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -167,15 +157,6 @@ export function AppHeader() {
                         </DropdownMenuItem>
                       </DialogTrigger>
                       <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
-                    </Dialog>
-                    <Dialog open={isReportCenterModalOpen} onOpenChange={setIsReportCenterModalOpen}>
-                      <DialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                          <FileBarChart className="mr-2 h-4 w-4" />
-                          <span>Report</span>
-                        </DropdownMenuItem>
-                      </DialogTrigger>
-                      <ReportCenterModal setOpen={setIsReportCenterModalOpen} />
                     </Dialog>
                     <DropdownMenuSeparator />
                     <Dialog open={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen}>
@@ -191,18 +172,17 @@ export function AppHeader() {
                   </DropdownMenuContent>
               </DropdownMenu>
             </Dialog>
-            <Button asChild variant="ghost" size="icon">
+            <Button asChild variant="ghost" size="icon" className="hover:bg-primary/90 hover:text-primary-foreground">
               <Link href="/notifications">
                 <Bell className="h-5 w-5"/>
                 <span className="sr-only">Notifications</span>
               </Link>
             </Button>
-             <Button variant="ghost" size="icon">
+             <Button variant="ghost" size="icon" className="hover:bg-primary/90 hover:text-primary-foreground">
                 <Settings className="h-5 w-5"/>
                 <span className="sr-only">Settings</span>
             </Button>
         </div>
-      </div>
     </header>
   );
 }
