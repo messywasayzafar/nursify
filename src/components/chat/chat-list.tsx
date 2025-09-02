@@ -3,13 +3,19 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Search, UserCheck, UserMinus, UserPlus, Users, MessageSquare, Briefcase } from 'lucide-react';
+import { Search, UserCheck, UserMinus, UserPlus, Users, MessageSquare, Briefcase, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import type { Chat } from '@/lib/types';
 import { mockChats } from '@/lib/mock-data';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const sidebarNavItems = [
     { name: 'Active patient', icon: UserCheck },
@@ -34,27 +40,29 @@ interface ChatListProps {
   onSelectChat: (chat: Chat) => void;
 }
 
-function Sidebar() {
-    const [activeIndex, setActiveIndex] = useState(0);
+function ChatTypeDropdown() {
+    const [selectedItem, setSelectedItem] = useState(sidebarNavItems[0]);
+
     return (
-        <div className="bg-muted/40 p-2 space-y-2 flex flex-col items-center">
-            {sidebarNavItems.map((item, index) => (
-                <Button
-                    key={item.name}
-                    variant={activeIndex === index ? 'secondary' : 'ghost'}
-                    className="w-full h-auto py-2 flex flex-col items-center justify-center"
-                    onClick={() => setActiveIndex(index)}
-                >
-                    <div className={cn(
-                        "rounded-full h-8 w-8 flex items-center justify-center mb-1",
-                        activeIndex === index ? 'bg-primary text-primary-foreground' : 'bg-gray-300'
-                    )}>
-                        <item.icon className="h-4 w-4" />
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                        <selectedItem.icon className="h-4 w-4" />
+                        <span>{selectedItem.name}</span>
                     </div>
-                    <span className="text-xs text-center">{item.name}</span>
+                    <ChevronDown className="h-4 w-4" />
                 </Button>
-            ))}
-        </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
+                {sidebarNavItems.map((item) => (
+                    <DropdownMenuItem key={item.name} onSelect={() => setSelectedItem(item)}>
+                        <item.icon className="mr-2 h-4 w-4" />
+                        <span>{item.name}</span>
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
@@ -71,7 +79,8 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
     
     return (
         <div className="flex-1 flex flex-col">
-            <div className="p-4 border-b">
+            <div className="p-4 border-b space-y-4">
+                <ChatTypeDropdown />
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search Patients" className="pl-8" />
@@ -110,8 +119,7 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
 
 export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
     return (
-        <Card className="h-full flex flex-row p-0 overflow-hidden">
-            <Sidebar />
+        <Card className="h-full flex flex-col p-0 overflow-hidden">
             <PatientList selectedChat={selectedChat} onSelectChat={onSelectChat} />
         </Card>
     );
