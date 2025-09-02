@@ -41,6 +41,7 @@ import React from 'react';
 import { SwitchOrganizationModal } from '../profile/switch-organization-modal';
 import { NotificationSettingsModal } from '../notifications/notification-settings-modal';
 import { ReportCenterModal } from '../report/report-center-modal';
+import { ResetPasswordModal } from '../profile/reset-password-modal';
 
 const navItems = [
     { href: '/chat', label: 'Chats' },
@@ -54,6 +55,7 @@ export function AppHeader() {
   const [isSwitchOrgModalOpen, setIsSwitchOrgModalOpen] = React.useState(false);
   const [isNotificationSettingsModalOpen, setIsNotificationSettingsModalOpen] = React.useState(false);
   const [isReportCenterModalOpen, setIsReportCenterModalOpen] = React.useState(false);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = React.useState(false);
 
   const handleLogout = () => {
     // TODO: Implement actual logout logic
@@ -176,7 +178,15 @@ export function AppHeader() {
                       <ReportCenterModal setOpen={setIsReportCenterModalOpen} />
                     </Dialog>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild><Link href="/forgot-password"><LockKeyhole className="mr-2 h-4 w-4" /><span>Reset Password</span></Link></DropdownMenuItem>
+                    <Dialog open={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen}>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <LockKeyhole className="mr-2 h-4 w-4" />
+                          <span>Reset Password</span>
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <ResetPasswordModal setOpen={setIsResetPasswordModalOpen} />
+                    </Dialog>
                     <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
                   </DropdownMenuContent>
               </DropdownMenu>
