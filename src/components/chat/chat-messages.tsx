@@ -16,6 +16,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { EditPatientSheet } from './edit-patient-sheet';
+
 
 interface ChatMessagesProps {
   selectedChat: Chat | null;
@@ -38,6 +41,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isPatientSheetOpen, setIsPatientSheetOpen] = useState(false);
 
   const filteredMessages = useMemo(() => {
     if (!searchTerm) {
@@ -115,7 +119,14 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
               <Search className="h-5 w-5" />
             </Button>
           )}
-          <Button variant="outline">Edit Patient</Button>
+          <Sheet open={isPatientSheetOpen} onOpenChange={setIsPatientSheetOpen}>
+            <SheetTrigger asChild>
+                <Button variant="outline">Edit Patient</Button>
+            </SheetTrigger>
+            <SheetContent className="sm:max-w-md p-0">
+                <EditPatientSheet patient={selectedChat} setOpen={setIsPatientSheetOpen} />
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
       <ScrollArea className="flex-1 p-4">
