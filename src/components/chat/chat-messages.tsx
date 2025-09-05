@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import type { Chat, Message } from '@/lib/types';
 import { mockMessages } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { Send, Paperclip, Search, ClipboardList, AlertCircle } from 'lucide-react';
+import { Send, Paperclip, Search, ClipboardList, AlertCircle, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -110,7 +110,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
             <div
               key={message.id}
               className={cn(
-                'flex items-end gap-2',
+                'flex items-end gap-2 group',
                 message.sender === 'You' ? 'justify-end' : 'justify-start'
               )}
             >
@@ -120,18 +120,48 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                   <AvatarFallback>{selectedChat.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               )}
-              <div
-                className={cn(
-                  'max-w-[80%] sm:max-w-md rounded-lg p-3',
-                  message.sender === 'You'
-                    ? 'bg-primary text-primary-foreground rounded-br-none'
-                    : 'bg-muted rounded-bl-none',
-                  message.isPatient && 'border-l-4 border-destructive'
+              <div className="flex items-center gap-1">
+                {message.sender === 'You' && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>Reply</DropdownMenuItem>
+                      <DropdownMenuItem>Forward</DropdownMenuItem>
+                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
-              >
-                {message.isPatient && <p className="text-xs font-bold mb-1">From Patient</p>}
-                <p className="text-sm break-words">{message.content}</p>
-                <p className="mt-1 text-right text-xs opacity-70">{message.timestamp}</p>
+                <div
+                  className={cn(
+                    'max-w-[80%] sm:max-w-md rounded-lg p-3',
+                    message.sender === 'You'
+                      ? 'bg-primary text-primary-foreground rounded-br-none'
+                      : 'bg-muted rounded-bl-none',
+                    message.isPatient && 'border-l-4 border-destructive'
+                  )}
+                >
+                  {message.isPatient && <p className="text-xs font-bold mb-1">From Patient</p>}
+                  <p className="text-sm break-words">{message.content}</p>
+                  <p className="mt-1 text-right text-xs opacity-70">{message.timestamp}</p>
+                </div>
+                {message.sender !== 'You' && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem>Reply</DropdownMenuItem>
+                      <DropdownMenuItem>Forward</DropdownMenuItem>
+                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             </div>
           ))}
