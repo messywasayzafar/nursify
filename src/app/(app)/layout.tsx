@@ -4,7 +4,7 @@
 import { AppHeader, PageTitleProvider } from '@/components/layout/header';
 import { AppFooter } from '@/components/layout/footer';
 import { useState, useId } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export interface MinimizedTab {
   id: string;
@@ -20,6 +20,7 @@ export default function AppLayout({
   const [pageTitle, setPageTitle] = useState('Dashboard');
   const [minimizedTabs, setMinimizedTabs] = useState<MinimizedTab[]>([]);
   const pathname = usePathname();
+  const router = useRouter();
   const componentId = useId();
 
   const closeTab = (tabId: string) => {
@@ -27,17 +28,23 @@ export default function AppLayout({
   };
 
   const minimizePage = () => {
-    // Avoid adding duplicate tabs for the same path
-    if (minimizedTabs.some(tab => tab.path === pathname)) {
+    // Avoid minimizing the dashboard itself
+    if (pathname === '/dashboard') {
       return;
     }
 
-    const newTab: MinimizedTab = {
-      id: `${pathname}-${componentId}-${minimizedTabs.length}`,
-      title: pageTitle,
-      path: pathname,
-    };
-    setMinimizedTabs(tabs => [...tabs, newTab]);
+    // Avoid adding duplicate tabs for the same path
+    if (!minimizedTabs.some(tab => tab.path === pathname)) {
+      const newTab: MinimizedTab = {
+        id: `${pathname}-${componentId}-${minimizedTabs.length}`,
+        title: pageTitle,
+        path: pathname,
+      };
+      setMinimizedTabs(tabs => [...tabs, newTab]);
+    }
+
+    // Navigate to dashboard
+    router.push('/dashboard');
   };
 
   return (
