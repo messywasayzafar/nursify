@@ -91,51 +91,19 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 border-b bg-primary text-primary-foreground">
         <div className="flex flex-1 items-center gap-4">
           <NursifyLogo />
-          <Sheet>
-            <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="shrink-0 md:hidden bg-primary hover:bg-primary/90 text-primary-foreground border-primary-foreground/50">
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-                <nav className="grid gap-2 text-lg font-medium">
-                  <Link href="#" className="flex items-center gap-2 text-lg font-semibold mb-4 text-foreground">
-                      <NursifyLogo />
-                      <span>Nursify Health</span>
-                  </Link>
-                  {navItems.map((item) => (
-                      <Link
-                          key={item.label}
-                          href={item.href}
-                          className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                      >
-                          {item.label}
-                      </Link>
-                  ))}
-                </nav>
-            </SheetContent>
-          </Sheet>
         </div>
         <div className="flex flex-1 justify-center text-xl font-bold">
           Agency Name
         </div>
         <div className="flex flex-1 items-center justify-end">
            <div className="flex items-center gap-2">
-              <p className="font-semibold">Noman Nizam,</p>
-              <p className="text-sm text-primary-foreground/80">Intake</p>
+              <p className="font-semibold">Noman Nizam, Intake</p>
           </div>
         </div>
       </div>
 
       {/* Navigation Bar */}
-      <nav className="hidden md:flex h-12 items-center justify-between px-4 lg:px-6 border-b">
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold">{pageTitle}</h1>
-          <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
-            <Minus className="h-5 w-5" />
-          </Button>
-        </div>
+      <nav className="hidden md:flex h-12 items-center justify-end px-4 lg:px-6 border-b">
         <div className="flex items-center gap-4">
           {navItems.map(item => (
             <Link key={item.href} href={item.href} className={cn(
@@ -217,6 +185,45 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
             </DropdownMenu>
         </div>
       </nav>
+
+       {/* Title and Actions Bar */}
+       <div className="hidden md:flex h-12 items-center justify-between px-4 lg:px-6">
+        <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold">{pageTitle}</h1>
+        </div>
+        <div className="flex items-center">
+            <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
+                <Minus className="h-5 w-5" />
+            </Button>
+        </div>
+       </div>
+
+      {/* Mobile Menu Sheet */}
+      <Sheet>
+        <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="shrink-0 md:hidden absolute top-4 left-4 bg-primary hover:bg-primary/90 text-primary-foreground border-primary-foreground/50">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle navigation menu</span>
+            </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex flex-col">
+            <nav className="grid gap-2 text-lg font-medium">
+                <div className="flex items-center gap-2 text-lg font-semibold mb-4 text-foreground">
+                    <Stethoscope className="h-8 w-8 text-primary" />
+                    <span className="text-lg">Nursify Portal</span>
+                </div>
+                {navItems.map((item) => (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                    >
+                        {item.label}
+                    </Link>
+                ))}
+            </nav>
+        </SheetContent>
+      </Sheet>
     </header>
   );
 }
