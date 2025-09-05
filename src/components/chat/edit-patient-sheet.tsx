@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import {
   SheetHeader,
   SheetTitle,
@@ -24,6 +25,12 @@ import {
   Image as ImageIcon,
   PlusCircle,
   Settings,
+  Cake,
+  MapPin,
+  CalendarDays,
+  Shield,
+  Mail,
+  FileText,
 } from 'lucide-react';
 import type { Chat } from '@/lib/types';
 
@@ -32,19 +39,27 @@ interface EditPatientSheetProps {
   setOpen: (open: boolean) => void;
 }
 
-const physicianDetails = [
-    { name: "Rumana Yunus - PCP", number: "(+1) 313-982-8100" },
-    { name: "Mario DeMeireles - Attending", number: "(+1) 313-359-0801" },
+const patientDetails = [
+    { icon: Cake, label: "Date of Birth", value: "03/16/1956 (69 yrs)" },
+    { icon: Phone, label: "Phone", value: "+1 734-642-7164" },
+    { icon: MapPin, label: "Address", value: "8294 Normile St, Detroit, MI 48204, USA" },
+    { icon: CalendarDays, label: "Episode", value: "08/31/25 - 10/30/25" },
+    { icon: Shield, label: "Insurance", value: "WellCare HMO - 29462822" },
 ];
 
-const caregiverDetails = [
-    { name: "Chanila Hines - Daughter", number: "(+1) 313-999-1917" },
-    { name: "Maggie Duncan - Mother", number: "(+1) 313-934-5328" },
+const documents = [
+    { name: "8/20 FS - order summary - PN (RN signed) -...", date: "8/20 FS - order summary - PN (RN signed) - H&P" },
+    { name: "Benefits NQS 0820", date: "PDF" },
+    { name: "8/26 HHC orders - PN", date: "PDF" },
+    { name: "Benefits WellCare 0903", date: "PDF" },
 ];
 
-const pharmacyDetails = [
-    { name: "OneCare LTC", number: "(+1) 248-663-2273" },
-];
+const media = [
+    { src: "https://picsum.photos/100/100?random=1", hint: "document" },
+    { src: "https://picsum.photos/100/100?random=2", hint: "medical chart" },
+    { src: "https://picsum.photos/100/100?random=3", hint: "patient" },
+    { src: "https://picsum.photos/100/100?random=4", hint: "prescription" },
+]
 
 
 export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
@@ -86,107 +101,68 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
             <ScrollArea className="flex-1">
                 <TabsContent value="info" className="m-0">
                     <div className="p-4 space-y-6">
-                        {/* Physician Details */}
+                        {/* Patient Details */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-medium text-muted-foreground">Physician Details</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground">Patient Details</h3>
                             <div className="space-y-3">
-                                {physicianDetails.map((detail, index) => (
-                                    <React.Fragment key={index}>
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                                <User className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">Physician Name</p>
-                                                <p>{detail.name}</p>
-                                            </div>
+                                {patientDetails.map((detail, index) => (
+                                    <div key={index} className="flex items-start gap-3 text-sm">
+                                        <div className="p-2 bg-primary/10 rounded-full text-primary mt-1">
+                                            <detail.icon className="h-5 w-5" />
                                         </div>
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                                <Phone className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">Physician Number</p>
-                                                <p>{detail.number}</p>
-                                            </div>
+                                        <div>
+                                            <p className="font-medium">{detail.value}</p>
                                         </div>
-                                    </React.Fragment>
+                                    </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Caregiver Details */}
+                        {/* Send Emails */}
+                        <div className="rounded-lg border bg-card p-4">
+                            <div className="flex items-start gap-4">
+                                <Mail className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
+                                <div>
+                                    <h4 className="font-semibold">Send emails to this group</h4>
+                                    <p className="text-sm text-muted-foreground">Get an email address that posts incoming emails in this group.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Referral Information */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-medium text-muted-foreground">Caregiver Details</h3>
-                            <div className="space-y-3">
-                                {caregiverDetails.map((detail, index) => (
-                                     <React.Fragment key={index}>
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                                <User className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">Caregiver Name</p>
-                                                <p>{detail.name}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                                <Phone className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">Caregiver Number</p>
-                                                <p>{detail.number}</p>
-                                            </div>
-                                        </div>
-                                    </React.Fragment>
+                            <h3 className="text-sm font-medium text-muted-foreground">Referral Information</h3>
+                            <div>
+                                <h4 className="font-semibold text-sm mb-1">Referral Source</h4>
+                                <p className="text-sm">*Four Chaplains Nursing Care Centre - Email - Jae'la Nelson P: (734) 261-9500 ext. 112</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-sm mb-1">Community Liaison</h4>
+                                <p className="text-sm">Zammad Khan</p>
+                            </div>
+                            <div className="space-y-2">
+                                {documents.map((doc, index) => (
+                                     <div key={index} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50">
+                                         <FileText className="h-6 w-6 text-destructive flex-shrink-0" />
+                                         <div>
+                                             <p className="text-sm font-medium">{doc.name}</p>
+                                             <p className="text-xs text-muted-foreground">{doc.date}</p>
+                                         </div>
+                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Pharmacy Details */}
+                        {/* Media, Links and Docs */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-medium text-muted-foreground">Pharmacy Details</h3>
-                            <div className="space-y-3">
-                                {pharmacyDetails.map((detail, index) => (
-                                     <React.Fragment key={index}>
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                                <User className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">Pharmacy Name</p>
-                                                <p>{detail.name}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                                <Phone className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">Pharmacy Number</p>
-                                                <p>{detail.number}</p>
-                                            </div>
-                                        </div>
-                                    </React.Fragment>
+                            <h3 className="text-sm font-medium text-muted-foreground">Media, Links and Docs</h3>
+                            <div className="grid grid-cols-4 gap-2">
+                                {media.map((item, index) => (
+                                    <Image key={index} src={item.src} alt="Media" width={100} height={100} className="rounded-md object-cover aspect-square" data-ai-hint={item.hint} />
                                 ))}
                             </div>
                         </div>
 
-                        {/* Export Settings */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-medium text-muted-foreground">Export Settings</h3>
-                            <div className="flex items-center gap-4 text-sm">
-                                <Button variant="ghost" className="flex items-center gap-2">
-                                    <MessageSquare className="h-5 w-5" />
-                                    <span>Export Chat</span>
-                                </Button>
-                                <Button variant="ghost" className="flex items-center gap-2">
-                                    <ImageIcon className="h-5 w-5" />
-                                    <span>Export Media</span>
-                                </Button>
-                            </div>
-                        </div>
 
                          {/* Actions */}
                         <div className="space-y-3 border-t pt-4">
