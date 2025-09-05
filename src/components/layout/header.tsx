@@ -21,7 +21,7 @@ import {
   LayoutDashboard,
   Minus,
   Stethoscope,
-  MoreHorizontal,
+  MoreVertical,
   X,
 } from 'lucide-react';
 
@@ -200,8 +200,8 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
              <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                      <MoreHorizontal className="h-5 w-5 mr-2" />
+                    <Button variant="outline" size="sm">
+                      <MoreVertical className="h-4 w-4 mr-2" />
                       More Options
                     </Button>
                   </DropdownMenuTrigger>
