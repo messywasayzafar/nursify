@@ -116,7 +116,7 @@ export function AppHeader() {
           Agency Name
         </div>
         <div className="flex flex-1 items-center justify-end gap-4">
-          <div className="text-right">
+          <div className="flex items-baseline gap-2">
               <p className="font-semibold">Noman Nizam,</p>
               <p className="text-sm text-muted-foreground">Intake</p>
           </div>
