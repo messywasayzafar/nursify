@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import type { Chat, Message } from '@/lib/types';
 import { mockMessages } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { Send, Paperclip, Search, ClipboardList, AlertCircle, MoreVertical } from 'lucide-react';
+import { Send, Paperclip, Search, ClipboardList, AlertCircle, MoreVertical, Info, UserCheck, Star, Eye, Copy, Stethoscope, Reply, Forward, RefreshCw, Trash2, ArrowUpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -74,6 +74,20 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
     );
   }
 
+  const messageMenuItems = [
+    { label: 'Info', icon: Info },
+    { label: 'Ask for Acknowledgement', icon: UserCheck },
+    { label: 'Star message', icon: Star },
+    { label: 'Visible to Patient', icon: Eye },
+    { label: 'Copy', icon: Copy },
+    { label: 'Visible to Physician', icon: Stethoscope },
+    { label: 'Reply', icon: Reply },
+    { label: 'Forward', icon: Forward },
+    { label: 'Resend', icon: RefreshCw },
+    { label: 'Resend As Priority', icon: ArrowUpCircle },
+    { label: 'Delete', icon: Trash2 },
+  ];
+
   return (
     <div className="flex h-full flex-col rounded-lg border bg-card">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b p-4">
@@ -129,9 +143,12 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Reply</DropdownMenuItem>
-                      <DropdownMenuItem>Forward</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                      {messageMenuItems.map((item) => (
+                        <DropdownMenuItem key={item.label}>
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <span>{item.label}</span>
+                        </DropdownMenuItem>
+                      ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
@@ -156,9 +173,12 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
-                      <DropdownMenuItem>Reply</DropdownMenuItem>
-                      <DropdownMenuItem>Forward</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                      {messageMenuItems.map((item) => (
+                        <DropdownMenuItem key={item.label}>
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <span>{item.label}</span>
+                        </DropdownMenuItem>
+                      ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
