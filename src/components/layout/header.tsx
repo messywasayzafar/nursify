@@ -220,9 +220,11 @@ export function AppHeader({ onMinimize, pathname }: AppHeaderProps) {
             <h1 className="text-lg font-semibold">{pageTitle}</h1>
         </div>
          <div className="flex flex-1 justify-end">
-            <Button variant="outline" size="icon" onClick={onMinimize} aria-label="Minimize page">
-                <Minus className="h-5 w-5" />
-            </Button>
+            {!isDashboard && (
+                <Button variant="outline" size="icon" onClick={onMinimize} aria-label="Minimize page">
+                    <Minus className="h-5 w-5" />
+                </Button>
+            )}
          </div>
       </div>
 
