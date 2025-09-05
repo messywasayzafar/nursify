@@ -20,6 +20,7 @@ import {
   CircleX,
   LayoutDashboard,
   Minus,
+  Stethoscope,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -58,10 +59,8 @@ export const PageTitleProvider = PageTitleContext.Provider;
 function NursifyLogo() {
   return (
     <div className="flex items-center gap-2 font-semibold">
-      <div className="w-12 h-12 bg-cyan-400 flex flex-col items-center justify-center p-1">
-        <Home className="w-6 h-6 text-white" />
-        <span className="text-xs text-white font-bold">NURSIFY</span>
-      </div>
+      <Stethoscope className="h-8 w-8 text-primary-foreground" />
+      <span className="text-lg">Nursify Portal</span>
     </div>
   );
 }
