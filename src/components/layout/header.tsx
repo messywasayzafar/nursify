@@ -195,7 +195,7 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
            <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost">
+                  <Button variant="outline">
                     <MoreHorizontal className="h-5 w-5 mr-2" />
                     More Options
                   </Button>
