@@ -27,6 +27,14 @@ export default function AppLayout({
     setMinimizedTabs(tabs => tabs.filter(tab => tab.id !== tabId));
   };
 
+  const closePage = () => {
+    // Avoid closing the dashboard itself
+    if (pathname === '/dashboard') {
+      return;
+    }
+    router.push('/dashboard');
+  };
+
   const minimizePage = () => {
     // Avoid minimizing the dashboard itself
     if (pathname === '/dashboard') {
@@ -50,7 +58,7 @@ export default function AppLayout({
   return (
     <PageTitleProvider value={{ pageTitle, setPageTitle }}>
       <div className="flex min-h-screen w-full flex-col">
-        <AppHeader onMinimize={minimizePage} pathname={pathname} />
+        <AppHeader onMinimize={minimizePage} onClose={closePage} pathname={pathname} />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
           {children}
         </main>

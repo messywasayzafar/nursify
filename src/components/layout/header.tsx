@@ -22,6 +22,7 @@ import {
   Minus,
   Stethoscope,
   MoreHorizontal,
+  X,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -69,10 +70,11 @@ function NursifyLogo() {
 
 interface AppHeaderProps {
   onMinimize: () => void;
+  onClose: () => void;
   pathname: string;
 }
 
-export function AppHeader({ onMinimize, pathname }: AppHeaderProps) {
+export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
   const router = useRouter();
   const { pageTitle } = usePageTitle();
 
@@ -219,11 +221,16 @@ export function AppHeader({ onMinimize, pathname }: AppHeaderProps) {
         <div className="flex flex-1 justify-center">
             <h1 className="text-lg font-semibold">{pageTitle}</h1>
         </div>
-         <div className="flex flex-1 justify-end">
+         <div className="flex flex-1 justify-end items-center gap-2">
             {!isDashboard && (
+              <>
                 <Button variant="outline" size="icon" onClick={onMinimize} aria-label="Minimize page">
                     <Minus className="h-5 w-5" />
                 </Button>
+                <Button variant="outline" size="icon" onClick={onClose} aria-label="Close page">
+                    <X className="h-5 w-5" />
+                </Button>
+              </>
             )}
          </div>
       </div>
