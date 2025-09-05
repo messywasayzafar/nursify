@@ -213,7 +213,7 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
       </nav>
 
       {/* Page Title Bar */}
-      <div className="flex h-12 items-center justify-between px-4 lg:px-6 bg-muted/40">
+      <div className="flex h-12 items-center justify-between px-4 lg:px-6 bg-background">
         <h1 className="text-lg font-semibold">{pageTitle}</h1>
         <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
           <Minus className="h-5 w-5" />
