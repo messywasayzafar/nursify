@@ -21,6 +21,7 @@ import {
   LayoutDashboard,
   Minus,
   Stethoscope,
+  MoreHorizontal,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ import { NotificationSettingsModal } from '../notifications/notification-setting
 import { ReportCenterModal } from '../report/report-center-modal';
 import { ResetPasswordModal } from '../profile/reset-password-modal';
 import { cn } from '@/lib/utils';
+import { NewPatientGroupModal } from '../chat/new-patient-group-modal';
 
 const navItems = [
     { href: '/chat', label: 'Chats' },
@@ -79,6 +81,7 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
   const [isNotificationSettingsModalOpen, setIsNotificationSettingsModalOpen] = React.useState(false);
   const [isReportCenterModalOpen, setIsReportCenterModalOpen] = React.useState(false);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = React.useState(false);
+  const [isNewPatientGroupModalOpen, setIsNewPatientGroupModalOpen] = React.useState(false);
 
   const handleLogout = () => {
     // TODO: Implement actual logout logic
@@ -190,6 +193,24 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
        <div className="hidden md:flex h-12 items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-2">
             <h1 className="text-lg font-semibold">{pageTitle}</h1>
+            <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
+                  </DialogTrigger>
+                  <DropdownMenuItem>New Internal Group</DropdownMenuItem>
+                  <DropdownMenuItem>New Broadcast</DropdownMenuItem>
+                  <DropdownMenuItem>Organizational Media</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
+            </Dialog>
         </div>
         <div className="flex items-center">
             <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
