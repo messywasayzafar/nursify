@@ -19,7 +19,7 @@ import {
   CircleUser,
   CircleX,
   LayoutDashboard,
-  ArrowDownToLine,
+  Minus,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -217,7 +217,7 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
       <div className="flex h-12 items-center justify-between px-4 lg:px-6 bg-muted/40">
         <h1 className="text-lg font-semibold">{pageTitle}</h1>
         <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
-          <ArrowDownToLine className="h-5 w-5" />
+          <Minus className="h-5 w-5" />
         </Button>
       </div>
     </header>
