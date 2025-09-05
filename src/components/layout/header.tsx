@@ -89,12 +89,12 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
   return (
     <header className="flex flex-col border-b bg-card">
       {/* Top Bar */}
-      <div className="flex h-16 items-center justify-between px-4 lg:px-6 border-b">
+      <div className="flex h-16 items-center justify-between px-4 lg:px-6 border-b bg-primary text-primary-foreground">
         <div className="flex flex-1 items-center gap-4">
           <NursifyLogo />
           <Sheet>
             <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+                <Button variant="outline" size="icon" className="shrink-0 md:hidden bg-primary hover:bg-primary/90 text-primary-foreground border-primary-foreground/50">
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Toggle navigation menu</span>
                 </Button>
@@ -124,7 +124,7 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
         <div className="flex flex-1 items-center justify-end">
            <div className="flex items-center gap-2">
               <p className="font-semibold">Noman Nizam,</p>
-              <p className="text-sm text-muted-foreground">Intake</p>
+              <p className="text-sm text-primary-foreground/80">Intake</p>
           </div>
         </div>
       </div>
