@@ -69,11 +69,11 @@ function NursifyLogo() {
 
 interface AppHeaderProps {
   onMinimize: () => void;
+  pathname: string;
 }
 
-export function AppHeader({ onMinimize }: AppHeaderProps) {
+export function AppHeader({ onMinimize, pathname }: AppHeaderProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const { pageTitle } = usePageTitle();
 
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
@@ -87,6 +87,8 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
     // TODO: Implement actual logout logic
     router.push('/login');
   };
+
+  const isDashboard = pathname === '/dashboard';
 
   return (
     <header className="flex flex-col border-b bg-card">
@@ -192,25 +194,27 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
       {/* Title Bar */}
       <div className="hidden md:flex h-12 items-center px-4 lg:px-6">
         <div className="flex flex-1 items-center gap-2">
-           <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <MoreHorizontal className="h-5 w-5 mr-2" />
-                    More Options
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
-                  </DialogTrigger>
-                  <DropdownMenuItem>New Internal Group</DropdownMenuItem>
-                  <DropdownMenuItem>New Broadcast</DropdownMenuItem>
-                  <DropdownMenuItem>Organizational Media</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
-            </Dialog>
+          {!isDashboard && (
+             <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <MoreHorizontal className="h-5 w-5 mr-2" />
+                      More Options
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
+                    </DialogTrigger>
+                    <DropdownMenuItem>New Internal Group</DropdownMenuItem>
+                    <DropdownMenuItem>New Broadcast</DropdownMenuItem>
+                    <DropdownMenuItem>Organizational Media</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
+              </Dialog>
+          )}
         </div>
         <div className="flex flex-1 justify-center">
             <h1 className="text-lg font-semibold">{pageTitle}</h1>
