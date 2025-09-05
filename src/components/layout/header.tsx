@@ -129,7 +129,13 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
       </div>
 
       {/* Navigation Bar */}
-      <nav className="hidden md:flex h-12 items-center justify-end px-4 lg:px-6 border-b">
+      <nav className="hidden md:flex h-12 items-center justify-between px-4 lg:px-6 border-b">
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-semibold">{pageTitle}</h1>
+          <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
+            <Minus className="h-5 w-5" />
+          </Button>
+        </div>
         <div className="flex items-center gap-4">
           {navItems.map(item => (
             <Link key={item.href} href={item.href} className={cn(
@@ -146,7 +152,7 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -211,14 +217,6 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
             </DropdownMenu>
         </div>
       </nav>
-
-      {/* Page Title Bar */}
-      <div className="flex h-12 items-center justify-between px-4 lg:px-6 bg-background">
-        <h1 className="text-lg font-semibold">{pageTitle}</h1>
-        <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
-          <Minus className="h-5 w-5" />
-        </Button>
-      </div>
     </header>
   );
 }
