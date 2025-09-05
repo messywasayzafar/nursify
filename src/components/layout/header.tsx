@@ -224,10 +224,10 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
          <div className="flex flex-1 justify-end items-center gap-2">
             {!isDashboard && (
               <>
-                <Button variant="outline" size="icon" onClick={onMinimize} aria-label="Minimize page">
+                <Button variant="outline" size="sm" onClick={onMinimize} aria-label="Minimize page" className="h-8 w-8 p-0">
                     <Minus className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={onClose} aria-label="Close page">
+                <Button variant="outline" size="sm" onClick={onClose} aria-label="Close page" className="h-8 w-8 p-0">
                     <X className="h-4 w-4" />
                 </Button>
               </>
