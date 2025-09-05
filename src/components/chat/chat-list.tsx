@@ -19,6 +19,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const sidebarNavItems = [
+    { name: 'All Patients', icon: Users },
     { name: 'Active patient', icon: UserCheck },
     { name: 'Discharge patient', icon: UserMinus },
     { name: 'Transfer patient', icon: UserPlus },
