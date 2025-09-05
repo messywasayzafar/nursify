@@ -40,7 +40,8 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="flex-1 space-y-4">
+    <div className="flex flex-col flex-1">
+      <div className="flex-grow space-y-4">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader>
@@ -99,6 +100,8 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
         </div>
+      </div>
+      <div className="mt-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center">
@@ -117,6 +120,7 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
     </div>
   );
 }
