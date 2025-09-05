@@ -225,10 +225,10 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
             {!isDashboard && (
               <>
                 <Button variant="outline" size="icon" onClick={onMinimize} aria-label="Minimize page">
-                    <Minus className="h-5 w-5" />
+                    <Minus className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" size="icon" onClick={onClose} aria-label="Close page">
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                 </Button>
               </>
             )}
