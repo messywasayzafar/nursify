@@ -25,27 +25,6 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col flex-1">
-        <div className="flex justify-start mb-4">
-            <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <MoreHorizontal className="h-4 w-4 mr-2" />
-                    More Options
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
-                  </DialogTrigger>
-                  <DropdownMenuItem>New Internal Group</DropdownMenuItem>
-                  <DropdownMenuItem>New Broadcast</DropdownMenuItem>
-                  <DropdownMenuItem>Organizational Media</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
-            </Dialog>
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
             <div className="col-span-1 h-full">
                 <ChatList selectedChat={selectedChat} onSelectChat={setSelectedChat} />
