@@ -148,7 +148,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" variant="ghost" size="icon">
+                <Button type="button" variant="ghost" size="icon" className="rounded-full">
                   <ClipboardList />
                 </Button>
               </DropdownMenuTrigger>
@@ -160,8 +160,8 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button type="button" variant="ghost" size="icon"><Paperclip /></Button>
-            <Button type="button" variant="ghost" size="icon"><AlertCircle /></Button>
+            <Button type="button" variant="ghost" size="icon" className="rounded-full"><Paperclip /></Button>
+            <Button type="button" variant="ghost" size="icon" className="rounded-full"><AlertCircle /></Button>
             <Button type="submit" size="icon" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 w-9 h-9">
               <Send className="h-4 w-4" />
               <span className="sr-only">Send</span>
