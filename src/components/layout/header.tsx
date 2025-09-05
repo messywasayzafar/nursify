@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from 'next/link';
@@ -18,6 +19,7 @@ import {
   CircleUser,
   CircleX,
   LayoutDashboard,
+  ArrowDownToLine,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -64,7 +66,11 @@ function NursifyLogo() {
   );
 }
 
-export function AppHeader() {
+interface AppHeaderProps {
+  onMinimize: () => void;
+}
+
+export function AppHeader({ onMinimize }: AppHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { pageTitle } = usePageTitle();
@@ -115,8 +121,8 @@ export function AppHeader() {
         <div className="flex flex-1 justify-center text-xl font-bold">
           Agency Name
         </div>
-        <div className="flex flex-1 items-center justify-end gap-4">
-          <div className="flex items-baseline gap-2">
+        <div className="flex flex-1 items-center justify-end">
+           <div className="flex items-center gap-2">
               <p className="font-semibold">Noman Nizam,</p>
               <p className="text-sm text-muted-foreground">Intake</p>
           </div>
@@ -210,6 +216,9 @@ export function AppHeader() {
       {/* Page Title Bar */}
       <div className="flex h-12 items-center justify-between px-4 lg:px-6 bg-muted/40">
         <h1 className="text-lg font-semibold">{pageTitle}</h1>
+        <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
+          <ArrowDownToLine className="h-5 w-5" />
+        </Button>
       </div>
     </header>
   );
