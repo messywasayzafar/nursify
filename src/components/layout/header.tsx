@@ -190,9 +190,8 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
       </nav>
 
       {/* Title Bar */}
-      <div className="hidden md:flex h-12 items-center justify-between px-4 lg:px-6">
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold">{pageTitle}</h1>
+      <div className="hidden md:flex h-12 items-center px-4 lg:px-6">
+        <div className="flex flex-1 items-center gap-2">
            <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -213,9 +212,14 @@ export function AppHeader({ onMinimize }: AppHeaderProps) {
               <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
             </Dialog>
         </div>
-         <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
-            <Minus className="h-5 w-5" />
-        </Button>
+        <div className="flex flex-1 justify-center">
+            <h1 className="text-lg font-semibold">{pageTitle}</h1>
+        </div>
+         <div className="flex flex-1 justify-end">
+            <Button variant="ghost" size="icon" onClick={onMinimize} aria-label="Minimize page">
+                <Minus className="h-5 w-5" />
+            </Button>
+         </div>
       </div>
 
       {/* Mobile Menu Sheet */}
