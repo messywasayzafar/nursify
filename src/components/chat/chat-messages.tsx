@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import type { Chat, Message } from '@/lib/types';
 import { mockMessages } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { Send, Paperclip, Search, ClipboardList, AlertCircle, MoreVertical, Info, UserCheck, Star, Eye, Copy, Stethoscope, Reply, Forward, RefreshCw, Trash2, ArrowUpCircle, Plus } from 'lucide-react';
+import { Send, Paperclip, Search, ClipboardList, AlertCircle, MoreVertical, Info, UserCheck, Star, Eye, Copy, Stethoscope, Reply, Forward, RefreshCw, Trash2, ArrowUpCircle, Plus, Camera, AlarmClock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -207,9 +207,31 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
             onChange={(e) => setNewMessage(e.target.value)}
           />
           <div className="absolute left-2 top-1/2 -translate-y-1/2">
-            <Button type="button" variant="ghost" size="icon" className="rounded-full">
-                <Plus />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="ghost" size="icon" className="rounded-full">
+                    <Plus />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem>
+                    <Camera className="mr-2 h-4 w-4" />
+                    <span>Camera</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <AlarmClock className="mr-2 h-4 w-4" />
+                    <span>Reminder</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <AlertCircle className="mr-2 h-4 w-4" />
+                    <span>Priority Message</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <MapPin className="mr-2 h-4 w-4" />
+                    <span>Live Location</span>
+                  </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
             <DropdownMenu>
