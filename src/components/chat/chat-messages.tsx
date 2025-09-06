@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import type { Chat, Message } from '@/lib/types';
 import { mockMessages } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { Send, Paperclip, Search, ClipboardList, AlertCircle, MoreVertical, Info, UserCheck, Star, Eye, Copy, Stethoscope, Reply, Forward, RefreshCw, Trash2, ArrowUpCircle } from 'lucide-react';
+import { Send, Paperclip, Search, ClipboardList, AlertCircle, MoreVertical, Info, UserCheck, Star, Eye, Copy, Stethoscope, Reply, Forward, RefreshCw, Trash2, ArrowUpCircle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -202,10 +202,15 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
         <form onSubmit={handleSendMessage} className="relative">
           <Input
             placeholder="Type a message..."
-            className="pr-48 bg-background h-12 rounded-full"
+            className="pr-48 bg-background h-12 rounded-full pl-12"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
+          <div className="absolute left-2 top-1/2 -translate-y-1/2">
+            <Button type="button" variant="ghost" size="icon" className="rounded-full">
+                <Plus />
+            </Button>
+          </div>
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
