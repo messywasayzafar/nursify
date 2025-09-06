@@ -23,6 +23,7 @@ import {
   Stethoscope,
   MoreVertical,
   X,
+  Plus,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -196,27 +197,32 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
       {/* Title Bar */}
       <div className="hidden md:flex h-12 items-center px-4 lg:px-6">
         <div className="flex flex-1 items-center gap-2">
-          {!isDashboard && (
-             <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">More Options</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DialogTrigger asChild>
-                      <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
-                    </DialogTrigger>
-                    <DropdownMenuItem>New Internal Group</DropdownMenuItem>
-                    <DropdownMenuItem>New Broadcast</DropdownMenuItem>
-                    <DropdownMenuItem>Organizational Media</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
-              </Dialog>
-          )}
+          <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
+            {!isDashboard ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
+                  </DialogTrigger>
+                  <DropdownMenuItem>New Internal Group</DropdownMenuItem>
+                  <DropdownMenuItem>New Broadcast</DropdownMenuItem>
+                  <DropdownMenuItem>Organizational Media</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className="h-8 w-8">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+            )}
+            <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
+          </Dialog>
         </div>
         <div className="flex flex-1 justify-center">
             <h1 className="text-lg font-semibold">{pageTitle}</h1>
@@ -224,10 +230,10 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
          <div className="flex flex-1 justify-end items-center gap-2">
             {!isDashboard && (
               <>
-                <Button variant="outline" size="icon" onClick={onMinimize} aria-label="Minimize page" className="h-8 w-8 p-0">
+                <Button variant="outline" size="icon" onClick={onMinimize} className="h-8 w-8">
                     <Minus className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={onClose} aria-label="Close page" className="h-8 w-8 p-0">
+                <Button variant="outline" size="icon" onClick={onClose} className="h-8 w-8">
                     <X className="h-4 w-4" />
                 </Button>
               </>
