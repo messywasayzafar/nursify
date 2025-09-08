@@ -10,9 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { AddUserModal } from '@/components/users/add-user-modal';
-import { SelectWorkingAreaModal } from '@/components/users/select-working-area-modal';
-import { SelectPermissionModal } from '@/components/users/select-permission-modal';
+import { AddUserModal } from '@/components/admin/add-user-modal';
 
 type User = {
   name: string;
@@ -57,8 +55,7 @@ export default function UsersPage() {
                 <DialogTrigger asChild>
                     <Button>Add New User</Button>
                 </DialogTrigger>
-                {/* Placeholder for AddUserModal, will be created in next steps */}
-                {/* <AddUserModal setOpen={setIsAddUserModalOpen} onUserAdded={() => {}} /> */}
+                <AddUserModal setOpen={setIsAddUserModalOpen} />
             </Dialog>
             <Input
               placeholder="Search Bar"
