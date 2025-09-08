@@ -33,7 +33,7 @@ const AdminSidebar = () => {
     { name: 'Users', icon: Users, href: '/admin/users' },
     { name: 'Support', icon: LifeBuoy, href: '/admin/support' },
     { name: 'Invoices', icon: FileText, href: '/admin/invoices' },
-    { name: 'Setting', icon: Settings, href: '#' },
+    { name: 'Setting', icon: Settings, href: '/admin/settings' },
   ];
 
   return (
