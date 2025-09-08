@@ -1,6 +1,7 @@
 
 'use client';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -88,7 +89,9 @@ export default function AgenciesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/admin/agencies/${agency.memberId}`}>View Details</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Deactivate</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
