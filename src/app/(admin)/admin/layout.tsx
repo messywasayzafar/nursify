@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Home, Users, BarChart2, LifeBuoy, FileText, Settings, Building, UserCircle, House, User, Bell, Lock, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,11 +20,13 @@ import { useState } from 'react';
 import { EditAdminProfileModal } from '@/components/admin/edit-admin-profile-modal';
 import { NotificationSettingsModal } from '@/components/notifications/notification-settings-modal';
 import { ResetPasswordModal } from '@/components/admin/reset-password-modal';
+import { cn } from '@/lib/utils';
 
 const AdminSidebar = () => {
+  const pathname = usePathname();
   const navItems = [
-    { name: 'Dashboard', icon: Home, href: '/admin', active: true },
-    { name: 'Agencies', icon: Building, href: '#' },
+    { name: 'Dashboard', icon: Home, href: '/admin' },
+    { name: 'Agencies', icon: Building, href: '/admin/agencies' },
     { name: 'Users', icon: Users, href: '#' },
     { name: 'Report', icon: BarChart2, href: '#' },
     { name: 'Support', icon: LifeBuoy, href: '#' },
@@ -38,9 +41,10 @@ const AdminSidebar = () => {
           <Link
             key={item.name}
             href={item.href}
-            className={`flex items-center gap-3 px-4 py-2 text-gray-700 rounded-md ${
-              item.active ? 'bg-white border border-gray-300 font-bold' : 'hover:bg-gray-200'
-            }`}
+            className={cn(
+              'flex items-center gap-3 px-4 py-2 text-gray-700 rounded-md',
+              pathname === item.href ? 'bg-white border border-gray-300 font-bold' : 'hover:bg-gray-200'
+            )}
           >
             <item.icon className="h-5 w-5" />
             <span>{item.name}</span>

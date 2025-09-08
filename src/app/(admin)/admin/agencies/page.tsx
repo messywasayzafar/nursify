@@ -1,0 +1,88 @@
+
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+const mockAgencies = [
+  {
+    name: 'Kind Hands Home Health',
+    location: 'Chicago, IL',
+    status: 'Active',
+    creationDate: '08/22/2025',
+    memberId: 'KH01',
+    subscription: 'Monthly',
+    totalActivePatient: 56,
+  },
+  {
+    name: 'Michigan Home Health',
+    location: 'Detroit, MI',
+    status: 'Active',
+    creationDate: '09/23/2024',
+    memberId: 'MH01',
+    subscription: 'Yearly',
+    totalActivePatient: 114,
+  },
+];
+
+export default function AgenciesPage() {
+  return (
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
+        <div className="flex items-center gap-4">
+          <Button>Add New Agency</Button>
+          <Input placeholder="Search Bar" className="w-64" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-cyan-700 hover:bg-cyan-800">
+                <TableHead className="text-white">S. No.</TableHead>
+                <TableHead className="text-white">Agencies Names</TableHead>
+                <TableHead className="text-white">Location</TableHead>
+                <TableHead className="text-white">Status</TableHead>
+                <TableHead className="text-white">Creation Date</TableHead>
+                <TableHead className="text-white">Member ID</TableHead>
+                <TableHead className="text-white">Subscription</TableHead>
+                <TableHead className="text-white">Total Active Patient</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockAgencies.map((agency, index) => (
+                <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{agency.name}</TableCell>
+                  <TableCell>{agency.location}</TableCell>
+                  <TableCell>{agency.status}</TableCell>
+                  <TableCell>{agency.creationDate}</TableCell>
+                  <TableCell>{agency.memberId}</TableCell>
+                  <TableCell>{agency.subscription}</TableCell>
+                  <TableCell>{agency.totalActivePatient}</TableCell>
+                </TableRow>
+              ))}
+               {Array.from({ length: 10 - mockAgencies.length }).map((_, index) => (
+                  <TableRow key={`empty-${index}`} className="h-[53px]">
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex justify-end mt-4">
+          <Button variant="secondary" className="bg-cyan-700 text-white hover:bg-cyan-800">Export To Excel</Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
