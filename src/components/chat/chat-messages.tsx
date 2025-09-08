@@ -94,12 +94,15 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
 
   return (
     <div className="flex h-full flex-col rounded-lg border bg-card">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b p-4">
-        <div className="grid gap-1">
-          <p className="font-semibold">Patient: {selectedChat.name}</p>
-          <p className="text-sm text-muted-foreground">
-            SOC: 06/14/2025 | Episode: 6/14/2025 - 08/12/2025
-          </p>
+      <div className="flex items-start justify-between gap-4 border-b p-4">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm flex-1">
+            <p><span className="font-semibold">Patient Name:</span> {selectedChat.name}</p>
+            <p><span className="font-semibold">Start of Care Date:</span> 06/14/2025</p>
+            <p><span className="font-semibold">Physician Name:</span></p>
+            <p><span className="font-semibold">Episode Date:</span> 6/14/2025 - 08/12/2025</p>
+            <p><span className="font-semibold">SN, PT, OT</span></p>
+            <p><span className="font-semibold">Contacts:</span></p>
+            <p><span className="font-semibold">Insurance:</span></p>
         </div>
         <div className="flex items-center gap-2">
           {isSearchVisible ? (
