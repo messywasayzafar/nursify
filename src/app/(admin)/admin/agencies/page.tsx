@@ -3,9 +3,11 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { MoreHorizontal } from 'lucide-react';
 
 const mockAgencies = [
   {
@@ -62,6 +64,7 @@ export default function AgenciesPage() {
                 <TableHead className="text-white">Member ID</TableHead>
                 <TableHead className="text-white">Subscription</TableHead>
                 <TableHead className="text-white">Total Active Patient</TableHead>
+                <TableHead className="text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,10 +78,26 @@ export default function AgenciesPage() {
                   <TableCell>{agency.memberId}</TableCell>
                   <TableCell>{agency.subscription}</TableCell>
                   <TableCell>{agency.totalActivePatient}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuItem>Deactivate</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))}
                {Array.from({ length: 10 - mockAgencies.length }).map((_, index) => (
                   <TableRow key={`empty-${index}`} className="h-[53px]">
+                    <TableCell></TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
