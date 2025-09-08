@@ -31,7 +31,7 @@ const AdminSidebar = () => {
     { name: 'Dashboard', icon: Home, href: '/admin' },
     { name: 'Agencies', icon: Building, href: '/admin/agencies' },
     { name: 'Users', icon: Users, href: '/admin/users' },
-    { name: 'Support', icon: LifeBuoy, href: '#' },
+    { name: 'Support', icon: LifeBuoy, href: '/admin/support' },
     { name: 'Invoices', icon: FileText, href: '#' },
     { name: 'Setting', icon: Settings, href: '#' },
   ];
