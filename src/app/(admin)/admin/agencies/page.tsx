@@ -88,11 +88,9 @@ export default function AgenciesPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/agencies/${agency.memberId}`}>View Details</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Deactivate</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
