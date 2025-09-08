@@ -27,7 +27,7 @@ const AdminSidebar = () => {
   const navItems = [
     { name: 'Dashboard', icon: Home, href: '/admin' },
     { name: 'Agencies', icon: Building, href: '/admin/agencies' },
-    { name: 'Users', icon: Users, href: '#' },
+    { name: 'Users', icon: Users, href: '/admin/users' },
     { name: 'Report', icon: BarChart2, href: '#' },
     { name: 'Support', icon: LifeBuoy, href: '#' },
     { name: 'Invoices', icon: FileText, href: '#' },
