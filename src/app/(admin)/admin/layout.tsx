@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { EditAdminProfileModal } from '@/components/admin/edit-admin-profile-modal';
+import { NotificationSettingsModal } from '@/components/notifications/notification-settings-modal';
 
 const AdminSidebar = () => {
   const navItems = [
@@ -56,6 +57,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isNotificationSettingsModalOpen, setIsNotificationSettingsModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
@@ -89,10 +91,15 @@ export default function AdminLayout({
                 <Home className="mr-2 h-4 w-4" />
                 <span>My Dashboard</span>
               </DropdownMenuItem>
-               <DropdownMenuItem>
-                <Bell className="mr-2 h-4 w-4" />
-                <span>Notifications</span>
-              </DropdownMenuItem>
+               <Dialog open={isNotificationSettingsModalOpen} onOpenChange={setIsNotificationSettingsModalOpen}>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Bell className="mr-2 h-4 w-4" />
+                    <span>Notifications</span>
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
+              </Dialog>
               <DropdownMenuItem>
                 <Lock className="mr-2 h-4 w-4" />
                 <span>Reset Password</span>
