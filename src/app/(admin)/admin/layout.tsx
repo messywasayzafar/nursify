@@ -1,7 +1,17 @@
+
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { Home, Users, BarChart2, LifeBuoy, FileText, Settings, Building, UserCircle, House } from 'lucide-react';
+import { Home, Users, BarChart2, LifeBuoy, FileText, Settings, Building, UserCircle, House, User, Bell, Lock, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from '@/components/ui/button';
 
 const AdminSidebar = () => {
   const navItems = [
@@ -49,10 +59,39 @@ export default function AdminLayout({
         </div>
         <div className="flex items-center gap-2">
           <span>Noman Nizam</span>
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="https://picsum.photos/32" alt="User" data-ai-hint="person" />
-            <AvatarFallback>NN</AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="https://picsum.photos/32" alt="User" data-ai-hint="person" />
+                  <AvatarFallback>NN</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <span>Edit Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Home className="mr-2 h-4 w-4" />
+                <span>My Dashboard</span>
+              </DropdownMenuItem>
+               <DropdownMenuItem>
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notifications</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Lock className="mr-2 h-4 w-4" />
+                <span>Reset Password</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                 <LogOut className="mr-2 h-4 w-4" />
+                <span>Log Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
       <div className="flex">
