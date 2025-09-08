@@ -42,7 +42,7 @@ export default function AgenciesPage() {
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="inactive">Deactivated</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="suspended">Suspended</SelectItem>
               </SelectContent>
