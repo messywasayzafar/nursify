@@ -81,7 +81,7 @@ export default function AdminLayout({
       <header className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2 text-cyan-500 font-bold text-xl">
             <House className="h-8 w-8" />
-            <span>NURSIFY HEALTH</span>
+            <span>Super Admin</span>
         </div>
         <div className="flex items-center gap-2">
           <span>Noman Nizam</span>
