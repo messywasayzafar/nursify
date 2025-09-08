@@ -9,6 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { AddAgencyModal } from '@/components/admin/add-agency-modal';
 
 const mockAgencies = [
   {
@@ -32,11 +35,18 @@ const mockAgencies = [
 ];
 
 export default function AgenciesPage() {
+  const [isAddAgencyModalOpen, setIsAddAgencyModalOpen] = useState(false);
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div className="flex items-center gap-4">
-          <Button>Add New Agency</Button>
+          <Dialog open={isAddAgencyModalOpen} onOpenChange={setIsAddAgencyModalOpen}>
+            <DialogTrigger asChild>
+              <Button>Add New Agency</Button>
+            </DialogTrigger>
+            <AddAgencyModal setOpen={setIsAddAgencyModalOpen} />
+          </Dialog>
           <Input placeholder="Search Bar" className="w-64" />
            <Select>
               <SelectTrigger className="w-[180px]">
@@ -45,7 +55,7 @@ export default function AgenciesPage() {
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Deactivated</SelectItem>
+                <SelectItem value="deactivated">Deactivated</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="suspended">Suspended</SelectItem>
               </SelectContent>
