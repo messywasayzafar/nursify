@@ -18,6 +18,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { EditAdminProfileModal } from '@/components/admin/edit-admin-profile-modal';
 import { NotificationSettingsModal } from '@/components/notifications/notification-settings-modal';
+import { ResetPasswordModal } from '@/components/admin/reset-password-modal';
 
 const AdminSidebar = () => {
   const navItems = [
@@ -58,6 +59,7 @@ export default function AdminLayout({
 }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isNotificationSettingsModalOpen, setIsNotificationSettingsModalOpen] = useState(false);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
@@ -100,10 +102,15 @@ export default function AdminLayout({
                 </DialogTrigger>
                 <NotificationSettingsModal setOpen={setIsNotificationSettingsModalOpen} />
               </Dialog>
-              <DropdownMenuItem>
-                <Lock className="mr-2 h-4 w-4" />
-                <span>Reset Password</span>
-              </DropdownMenuItem>
+              <Dialog open={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen}>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Lock className="mr-2 h-4 w-4" />
+                    <span>Reset Password</span>
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <ResetPasswordModal setOpen={setIsResetPasswordModalOpen} />
+              </Dialog>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                  <LogOut className="mr-2 h-4 w-4" />
