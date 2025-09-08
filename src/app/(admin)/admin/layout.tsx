@@ -1,4 +1,6 @@
 
+'use client';
+
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Home, Users, BarChart2, LifeBuoy, FileText, Settings, Building, UserCircle, House, User, Bell, Lock, LogOut } from 'lucide-react';
@@ -12,6 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { useState } from 'react';
+import { EditAdminProfileModal } from '@/components/admin/edit-admin-profile-modal';
 
 const AdminSidebar = () => {
   const navItems = [
@@ -50,6 +55,8 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-white text-gray-800">
       <header className="flex items-center justify-between p-4 border-b">
@@ -69,10 +76,15 @@ export default function AdminLayout({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Edit Profile</span>
-              </DropdownMenuItem>
+              <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Edit Profile</span>
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <EditAdminProfileModal setOpen={setIsProfileModalOpen} />
+              </Dialog>
               <DropdownMenuItem>
                 <Home className="mr-2 h-4 w-4" />
                 <span>My Dashboard</span>
