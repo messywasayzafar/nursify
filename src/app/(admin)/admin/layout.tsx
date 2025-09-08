@@ -20,15 +20,17 @@ import { useState } from 'react';
 import { EditAdminProfileModal } from '@/components/admin/edit-admin-profile-modal';
 import { NotificationSettingsModal } from '@/components/notifications/notification-settings-modal';
 import { ResetPasswordModal } from '@/components/admin/reset-password-modal';
+import { ReportCenterModal } from '@/components/report/report-center-modal';
 import { cn } from '@/lib/utils';
 
 const AdminSidebar = () => {
   const pathname = usePathname();
+  const [isReportCenterModalOpen, setIsReportCenterModalOpen] = useState(false);
+
   const navItems = [
     { name: 'Dashboard', icon: Home, href: '/admin' },
     { name: 'Agencies', icon: Building, href: '/admin/agencies' },
     { name: 'Users', icon: Users, href: '/admin/users' },
-    { name: 'Report', icon: BarChart2, href: '#' },
     { name: 'Support', icon: LifeBuoy, href: '#' },
     { name: 'Invoices', icon: FileText, href: '#' },
     { name: 'Setting', icon: Settings, href: '#' },
@@ -50,6 +52,15 @@ const AdminSidebar = () => {
             <span>{item.name}</span>
           </Link>
         ))}
+        <Dialog open={isReportCenterModalOpen} onOpenChange={setIsReportCenterModalOpen}>
+          <DialogTrigger asChild>
+            <button className="flex items-center gap-3 px-4 py-2 text-gray-700 rounded-md hover:bg-gray-200 text-left">
+              <BarChart2 className="h-5 w-5" />
+              <span>Report</span>
+            </button>
+          </DialogTrigger>
+          <ReportCenterModal setOpen={setIsReportCenterModalOpen} />
+        </Dialog>
       </nav>
     </aside>
   );

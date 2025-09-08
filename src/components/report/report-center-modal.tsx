@@ -40,6 +40,16 @@ export function ReportCenterModal({ setOpen }: ReportCenterModalProps) {
               className="w-full justify-center h-12 text-md"
               onClick={() => {
                 setOpen(false);
+                setIsPatientGroupModalOpen(true);
+              }}
+            >
+              Patient Groups
+            </Button>
+           <Button
+              variant="outline"
+              className="w-full justify-center h-12 text-md"
+              onClick={() => {
+                setOpen(false);
                 setIsFieldStaffModalOpen(true);
               }}
             >
@@ -55,18 +65,6 @@ export function ReportCenterModal({ setOpen }: ReportCenterModalProps) {
             >
               Office Staff
             </Button>
-          <DialogTrigger asChild>
-             <Button
-                variant="outline"
-                className="w-full justify-center h-12 text-md"
-                onClick={() => {
-                  setOpen(false);
-                  setIsPatientGroupModalOpen(true);
-                }}
-              >
-                Patient Groups
-              </Button>
-          </DialogTrigger>
            <Button
               variant="outline"
               className="w-full justify-center h-12 text-md"
@@ -77,21 +75,6 @@ export function ReportCenterModal({ setOpen }: ReportCenterModalProps) {
             >
               Internal Groups
             </Button>
-
-          {reportButtons.map((buttonLabel) => (
-            <Button
-              key={buttonLabel}
-              variant="outline"
-              className="w-full justify-center h-12 text-md"
-              onClick={() => {
-                // TODO: Implement report generation logic
-                console.log(`Generating report: ${buttonLabel}`);
-                setOpen(false);
-              }}
-            >
-              {buttonLabel}
-            </Button>
-          ))}
         </div>
       </DialogContent>
 
