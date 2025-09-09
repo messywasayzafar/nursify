@@ -205,7 +205,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
         <form onSubmit={handleSendMessage} className="relative">
           <Input
             placeholder="Type a message..."
-            className="pr-48 bg-background h-12 rounded-full pl-12"
+            className="pr-40 bg-background h-12 rounded-full pl-12"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
@@ -224,10 +224,6 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
                   <DropdownMenuItem>
                     <AlarmClock className="mr-2 h-4 w-4" />
                     <span>Reminder</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <AlertCircle className="mr-2 h-4 w-4" />
-                    <span>Priority Message</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <MapPin className="mr-2 h-4 w-4" />
@@ -252,7 +248,6 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button type="button" variant="ghost" size="icon" className="rounded-full"><Paperclip /></Button>
-            <Button type="button" variant="ghost" size="icon" className="rounded-full"><AlertCircle /></Button>
             <Button type="submit" size="icon" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 w-9 h-9">
               <Send className="h-4 w-4" />
               <span className="sr-only">Send</span>
