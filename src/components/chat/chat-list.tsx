@@ -83,7 +83,6 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
         <div className="flex-1 flex flex-col">
              <div className="p-4 border-b">
                  <div className="flex justify-around rounded-lg bg-muted p-1">
-                    <Button variant="ghost" size="sm" className="flex-1">All Patients</Button>
                     <Button variant="ghost" size="sm" className="flex-1">Internal groups</Button>
                     <Button variant="ghost" size="sm" className="flex-1">Individual</Button>
                     <Button variant="ghost" size="sm" className="flex-1">Contacts</Button>
