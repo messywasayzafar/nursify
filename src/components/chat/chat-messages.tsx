@@ -88,7 +88,6 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
     { label: 'Reply', icon: Reply },
     { label: 'Forward', icon: Forward },
     { label: 'Resend', icon: RefreshCw },
-    { label: 'Resend As Priority', icon: ArrowUpCircle },
     { label: 'Delete', icon: Trash2 },
   ];
 
@@ -205,7 +204,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
         <form onSubmit={handleSendMessage} className="relative">
           <Input
             placeholder="Type a message..."
-            className="pr-40 bg-background h-12 rounded-full pl-12"
+            className="pr-48 bg-background h-12 rounded-full pl-12"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
@@ -233,6 +232,9 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
             </DropdownMenu>
           </div>
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+            <Button type="button" variant="ghost" size="icon" className="rounded-full text-destructive hover:text-destructive">
+                <AlertCircle />
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button type="button" variant="ghost" size="icon" className="rounded-full">
