@@ -198,7 +198,7 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
       <div className="hidden md:flex h-12 items-center px-4 lg:px-6">
         <div className="flex flex-1 items-center gap-2">
           <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
-            {!isDashboard ? (
+            {!isDashboard && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="h-8 w-8">
@@ -214,12 +214,6 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                   <DropdownMenuItem>Organizational Media</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
             )}
             <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
           </Dialog>
