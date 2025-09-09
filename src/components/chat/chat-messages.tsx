@@ -232,7 +232,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
             </DropdownMenu>
           </div>
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
-            <Button type="button" variant="ghost" size="icon" className="rounded-full text-destructive hover:text-destructive">
+            <Button type="button" variant="ghost" size="icon" className="rounded-full">
                 <AlertCircle />
             </Button>
             <DropdownMenu>
