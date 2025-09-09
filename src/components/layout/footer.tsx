@@ -39,7 +39,6 @@ export function AppFooter({ minimizedTabs, onCloseTab }: AppFooterProps) {
   return (
     <footer className="sticky bottom-0 z-50 border-t bg-card p-2">
       <div className="container mx-auto flex items-center gap-2">
-        <h3 className="text-sm font-semibold mr-2">Minimized</h3>
         <div className="flex items-center gap-2 overflow-x-auto">
             {minimizedTabs.map((tab) => (
               <div
