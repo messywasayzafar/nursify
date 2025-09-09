@@ -23,9 +23,6 @@ const sidebarNavItems = [
     { name: 'Active patient', icon: UserCheck },
     { name: 'Discharge patient', icon: UserMinus },
     { name: 'Transfer patient', icon: UserPlus },
-    { name: 'Internal groups', icon: Users },
-    { name: 'Individual', icon: MessageSquare },
-    { name: 'Contacts', icon: Briefcase },
 ];
 
 const patients = [
