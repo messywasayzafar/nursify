@@ -3,13 +3,13 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Search, UserCheck, UserMinus, UserPlus, Users, MessageSquare, Briefcase, ChevronDown, AlertCircle, CheckCircle, Star, Filter } from 'lucide-react';
+import { Search, UserCheck, UserMinus, UserPlus, Users, MessageSquare, Briefcase, ChevronDown, AlertCircle, CheckCircle, Star, Filter, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import type { Chat } from '@/lib/types';
-import { mockChats } from '@/lib/mock-data';
+import { mockChats, mockBroadcasts } from '@/lib/mock-data';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,6 +17,9 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { FilterModal } from './filter-modal';
+import { BroadcastModal } from './broadcast-modal';
 
 const sidebarNavItems = [
     { name: 'All Patients', icon: Users },
@@ -67,9 +70,12 @@ function ChatTypeDropdown() {
 
 function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
     const [selectedIndex, setSelectedIndex] = useState(2);
+    const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+    const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
+    const [showBroadcasts, setShowBroadcasts] = useState(false);
     
     // Using mockChats for demonstration as patients array doesn't map to chat objects
-    const chats = mockChats;
+    const chats = showBroadcasts ? mockBroadcasts : mockChats;
 
     const handleSelect = (chat: Chat, index: number) => {
         onSelectChat(chat);
@@ -112,14 +118,36 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
                                 <p>Starred Message</p>
                             </TooltipContent>
                         </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon"><Filter /></Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Filter</p>
-                            </TooltipContent>
-                        </Tooltip>
+                        <Dialog open={isBroadcastModalOpen} onOpenChange={setIsBroadcastModalOpen}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon"
+                                        onClick={() => setShowBroadcasts(!showBroadcasts)}
+                                    >
+                                        <Radio />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Broadcast</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <BroadcastModal setOpen={setIsBroadcastModalOpen} />
+                        </Dialog>
+                        <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <DialogTrigger asChild>
+                                        <Button variant="ghost" size="icon"><Filter /></Button>
+                                    </DialogTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Filter</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <FilterModal setOpen={setIsFilterModalOpen} />
+                        </Dialog>
                     </TooltipProvider>
                 </div>
                 <ChatTypeDropdown />
@@ -130,29 +158,60 @@ function PatientList({ selectedChat, onSelectChat }: ChatListProps) {
             </div>
             <ScrollArea className="h-0 flex-grow">
                 <div className="p-2 space-y-2">
-                    {patients.map((patient, index) => (
-                        <button
-                            key={index}
-                            onClick={() => setSelectedIndex(index)}
-                            className={cn(
-                                "w-full text-left p-3 rounded-md border",
-                                selectedIndex === index ? "bg-primary text-primary-foreground" : "bg-card"
-                            )}
-                        >
-                            <div className="flex flex-wrap sm:flex-nowrap justify-between items-start gap-2">
-                                <div className="flex-grow">
-                                    <p className="font-semibold">Patient Name: {patient.name}</p>
-                                    <p className="text-sm">SN, PT, OT: {patient.disciplines}</p>
-                                    <p className="text-sm">Episode Date: {patient.episodeDate}</p>
-                                </div>
-                                {patient.status && (
-                                    <div className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded shrink-0 mt-1 sm:mt-0">
-                                        {patient.status}
-                                    </div>
+                    {showBroadcasts ? (
+                        chats.map((chat, index) => (
+                            <button
+                                key={chat.id}
+                                onClick={() => handleSelect(chat, index)}
+                                className={cn(
+                                    "w-full text-left p-3 rounded-md border",
+                                    selectedIndex === index ? "bg-primary text-primary-foreground" : "bg-card"
                                 )}
-                            </div>
-                        </button>
-                    ))}
+                            >
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                                        <Radio className="h-5 w-5" />
+                                    </div>
+                                    <div className="flex-grow">
+                                        <div className="flex justify-between items-start">
+                                            <p className="font-semibold">{chat.name}</p>
+                                            <span className="text-xs text-muted-foreground">{chat.timestamp}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">{chat.lastMessage}</p>
+                                        {chat.unreadCount && (
+                                            <div className="bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-full inline-block mt-1">
+                                                {chat.unreadCount}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </button>
+                        ))
+                    ) : (
+                        patients.map((patient, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setSelectedIndex(index)}
+                                className={cn(
+                                    "w-full text-left p-3 rounded-md border",
+                                    selectedIndex === index ? "bg-primary text-primary-foreground" : "bg-card"
+                                )}
+                            >
+                                <div className="flex flex-wrap sm:flex-nowrap justify-between items-start gap-2">
+                                    <div className="flex-grow">
+                                        <p className="font-semibold">Patient Name: {patient.name}</p>
+                                        <p className="text-sm">SN, PT, OT: {patient.disciplines}</p>
+                                        <p className="text-sm">Episode Date: {patient.episodeDate}</p>
+                                    </div>
+                                    {patient.status && (
+                                        <div className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded shrink-0 mt-1 sm:mt-0">
+                                            {patient.status}
+                                        </div>
+                                    )}
+                                </div>
+                            </button>
+                        ))
+                    )}
                 </div>
             </ScrollArea>
         </div>

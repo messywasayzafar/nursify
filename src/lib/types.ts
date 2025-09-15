@@ -30,7 +30,7 @@ export interface Alert {
 export interface Chat {
     id: string;
     name: string;
-    type: 'group' | 'direct';
+    type: 'group' | 'direct' | 'broadcast';
     lastMessage: string;
     timestamp: string;
     avatar: string;

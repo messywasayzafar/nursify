@@ -45,6 +45,7 @@ import { ReportCenterModal } from '../report/report-center-modal';
 import { ResetPasswordModal } from '../profile/reset-password-modal';
 import { cn } from '@/lib/utils';
 import { NewPatientGroupModal } from '../chat/new-patient-group-modal';
+import { BroadcastModal } from '../chat/broadcast-modal';
 
 const navItems = [
     { href: '/chat', label: 'Chats' },
@@ -85,6 +86,7 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
   const [isReportCenterModalOpen, setIsReportCenterModalOpen] = React.useState(false);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = React.useState(false);
   const [isNewPatientGroupModalOpen, setIsNewPatientGroupModalOpen] = React.useState(false);
+  const [isBroadcastModalOpen, setIsBroadcastModalOpen] = React.useState(false);
 
   const handleLogout = () => {
     // TODO: Implement actual logout logic
@@ -210,12 +212,15 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                     <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
                   </DialogTrigger>
                   <DropdownMenuItem>New Internal Group</DropdownMenuItem>
-                  <DropdownMenuItem>New Broadcast</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsBroadcastModalOpen(true)}>New Broadcast</DropdownMenuItem>
                   <DropdownMenuItem>Organizational Media</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
             <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
+          </Dialog>
+          <Dialog open={isBroadcastModalOpen} onOpenChange={setIsBroadcastModalOpen}>
+            <BroadcastModal setOpen={setIsBroadcastModalOpen} />
           </Dialog>
         </div>
         <div className="flex flex-1 justify-center">

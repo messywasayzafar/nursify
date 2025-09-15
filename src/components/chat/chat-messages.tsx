@@ -84,7 +84,6 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
     { label: 'Star message', icon: Star },
     { label: 'Visible to Patient', icon: Eye },
     { label: 'Copy', icon: Copy },
-    { label: 'Visible to Physician', icon: Stethoscope },
     { label: 'Reply', icon: Reply },
     { label: 'Forward', icon: Forward },
     { label: 'Resend', icon: RefreshCw },

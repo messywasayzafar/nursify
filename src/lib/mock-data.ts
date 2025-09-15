@@ -28,6 +28,12 @@ export const mockChats: Chat[] = [
     { id: 'c3', name: 'Patient: Maria Garcia', type: 'direct', lastMessage: 'I have a question about my medication.', timestamp: 'Yesterday', avatar: 'https://picsum.photos/50/50?random=3' },
 ];
 
+export const mockBroadcasts: Chat[] = [
+    { id: 'b1', name: 'Infection Control Practices', type: 'broadcast', lastMessage: 'New guidelines for hand hygiene protocols.', timestamp: '2:15 PM', avatar: 'https://picsum.photos/50/50?random=4', unreadCount: 5 },
+    { id: 'b2', name: 'Weekly Updates', type: 'broadcast', lastMessage: 'This week\'s patient care updates and announcements.', timestamp: '11:30 AM', avatar: 'https://picsum.photos/50/50?random=5', unreadCount: 3 },
+    { id: 'b3', name: 'Emergency Protocols', type: 'broadcast', lastMessage: 'Updated emergency contact procedures.', timestamp: 'Yesterday', avatar: 'https://picsum.photos/50/50?random=6', unreadCount: 1 },
+];
+
 export const mockMessages: Message[] = [
     { id: 'm1', sender: 'You', content: 'Hi Susan, could you check on Mr. Smith\'s PT schedule for next week?', timestamp: '9:40 AM' },
     { id: 'm2', sender: 'Susan Miller', content: 'Sure, I will check and get back to you shortly.', timestamp: '9:42 AM' },

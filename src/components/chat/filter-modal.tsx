@@ -6,43 +6,163 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogClose,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface FilterModalProps {
   setOpen: (open: boolean) => void;
 }
 
-const roles = ['SN', 'PT', 'OT', 'SLP', 'MSW', 'HHA', 'RD'];
-
 export function FilterModal({ setOpen }: FilterModalProps) {
+  const [patientStatusOpen, setPatientStatusOpen] = useState(true);
+  const [serviceStatusOpen, setServiceStatusOpen] = useState(true);
+  const [chatFilterOpen, setChatFilterOpen] = useState(true);
+
   return (
-    <DialogContent className="sm:max-w-sm p-0">
+    <DialogContent className="sm:max-w-md p-0">
       <DialogHeader className="p-4 bg-primary text-primary-foreground">
-        <DialogTitle className="text-center text-lg">Filter</DialogTitle>
+        <DialogTitle className="text-center text-lg">Messages Filter</DialogTitle>
       </DialogHeader>
-      <div className="p-6">
-        <p className="mb-4 text-sm font-medium">Select the role</p>
-        <div className="grid grid-cols-3 gap-4">
-          {roles.map((role) => (
-            <div key={role} className="flex items-center space-x-2">
-              <Checkbox id={role} />
-              <Label htmlFor={role} className="font-normal">
-                {role}
-              </Label>
+      
+      <div className="p-4 space-y-4">
+        {/* Filter by patient status */}
+        <Collapsible open={patientStatusOpen} onOpenChange={setPatientStatusOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 text-left font-medium">
+            Filter by patient status
+            <ChevronDown className={`h-4 w-4 transition-transform ${patientStatusOpen ? 'rotate-180' : ''}`} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-2 p-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="non-admit" />
+                <Label htmlFor="non-admit" className="text-sm flex items-center">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                  Non Admit
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="pending-soc" />
+                <Label htmlFor="pending-soc" className="text-sm flex items-center">
+                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  Pending SOC
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="active" />
+                <Label htmlFor="active" className="text-sm flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Active
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="hospitalized" />
+                <Label htmlFor="hospitalized" className="text-sm flex items-center">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Hospitalized
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="pending-roc" />
+                <Label htmlFor="pending-roc" className="text-sm flex items-center">
+                  <span className="w-2 h-2 bg-red-600 rounded-full mr-2"></span>
+                  Pending ROC
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="discharged" />
+                <Label htmlFor="discharged" className="text-sm flex items-center">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                  Discharged
+                </Label>
+              </div>
             </div>
-          ))}
-        </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <hr />
+
+        {/* Filter by service status */}
+        <Collapsible open={serviceStatusOpen} onOpenChange={setServiceStatusOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 text-left font-medium">
+            Filter by service status
+            <ChevronDown className={`h-4 w-4 transition-transform ${serviceStatusOpen ? 'rotate-180' : ''}`} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 p-2">
+            <RadioGroup>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="sn" id="sn" />
+                  <Label htmlFor="sn" className="text-sm">SN</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="pt" id="pt" />
+                  <Label htmlFor="pt" className="text-sm">PT</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="ot" id="ot" />
+                  <Label htmlFor="ot" className="text-sm">OT</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="slp" id="slp" />
+                  <Label htmlFor="slp" className="text-sm">SLP</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="msw" id="msw" />
+                  <Label htmlFor="msw" className="text-sm">MSW</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="hha" id="hha" />
+                  <Label htmlFor="hha" className="text-sm">HHA</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="rd" id="rd" />
+                  <Label htmlFor="rd" className="text-sm">RD</Label>
+                </div>
+              </div>
+            </RadioGroup>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <hr />
+
+        {/* Filter chats by */}
+        <Collapsible open={chatFilterOpen} onOpenChange={setChatFilterOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 text-left font-medium">
+            Filter chats by
+            <ChevronDown className={`h-4 w-4 transition-transform ${chatFilterOpen ? 'rotate-180' : ''}`} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-2 p-2">
+            <RadioGroup>
+              <div className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="date" id="date" className="text-cyan-500" />
+                  <Label htmlFor="date" className="text-sm">Date</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="unread" id="unread" />
+                  <Label htmlFor="unread" className="text-sm">Unread Messages</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="referrals" id="referrals" />
+                  <Label htmlFor="referrals" className="text-sm">Pending Referrals</Label>
+                </div>
+              </div>
+            </RadioGroup>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
-      <DialogFooter className="p-4 border-t bg-muted/40">
+
+      <DialogFooter className="p-4 border-t bg-muted/40 flex justify-between">
         <Button variant="outline" onClick={() => setOpen(false)}>
-          Cancel
+          Reset
         </Button>
-        <Button type="submit" onClick={() => setOpen(false)} className="bg-primary hover:bg-primary/90">
+        <Button onClick={() => setOpen(false)}>
           Apply
         </Button>
       </DialogFooter>

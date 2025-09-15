@@ -31,6 +31,7 @@ import {
   Shield,
   Mail,
   FileText,
+  Download,
 } from 'lucide-react';
 import type { Chat } from '@/lib/types';
 
@@ -63,6 +64,8 @@ const media = [
 
 
 export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
+  const [showAllDocs, setShowAllDocs] = React.useState(false);
+
   return (
     <div className="flex h-full flex-col">
       <SheetHeader className="p-4 border-b">
@@ -71,34 +74,42 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                 <Avatar className="h-12 w-12 border-2 border-primary">
                     <AvatarFallback className="bg-primary text-primary-foreground"><Home /></AvatarFallback>
                 </Avatar>
-                <div>
-                    <SheetTitle className="text-lg font-bold">Forest Flagg</SheetTitle>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>SN</span>
-                        <span>PT</span>
-                        <span>OT</span>
-                        <span>HHA</span>
-                        <Badge variant="destructive" className="ml-2">#SOC AUTH HOLD</Badge>
+                <div className="flex-1">
+                    <SheetTitle className="text-lg font-bold mb-1">Forest Flagg</SheetTitle>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1">
+                            <Badge variant="outline" className="text-xs px-2 py-0.5">SN</Badge>
+                            <Badge variant="outline" className="text-xs px-2 py-0.5">PT</Badge>
+                            <Badge variant="outline" className="text-xs px-2 py-0.5">OT</Badge>
+                            <Badge variant="outline" className="text-xs px-2 py-0.5">HHA</Badge>
+                        </div>
+                        <Badge variant="destructive" className="text-xs px-2 py-1 font-semibold">
+                            #SOC AUTH HOLD
+                        </Badge>
                     </div>
                 </div>
             </div>
-            <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon"><Calendar className="h-5 w-5"/></Button>
-                <Button variant="ghost" size="icon"><Pencil className="h-5 w-5"/></Button>
-                <Button variant="ghost" size="icon"><List className="h-5 w-5"/></Button>
-                <Button variant="ghost" size="icon" onClick={() => setOpen(false)}><X className="h-5 w-5"/></Button>
+            <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Calendar className="h-4 w-4"/>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Pencil className="h-4 w-4"/>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <List className="h-4 w-4"/>
+                </Button>
             </div>
         </div>
       </SheetHeader>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Tabs defaultValue="info" className="flex-1 flex flex-col">
-            <TabsList className="mx-4 mt-4">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Tabs defaultValue="info" className="flex-1 flex flex-col overflow-hidden">
+            <TabsList className="mx-4 mt-4 flex-shrink-0">
                 <TabsTrigger value="info">Info</TabsTrigger>
                 <TabsTrigger value="members">Members</TabsTrigger>
-                <TabsTrigger value="vitals">Vitals</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-auto">
                 <TabsContent value="info" className="m-0">
                     <div className="p-4 space-y-6">
                         {/* Patient Details */}
@@ -118,17 +129,6 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                             </div>
                         </div>
 
-                        {/* Send Emails */}
-                        <div className="rounded-lg border bg-card p-4">
-                            <div className="flex items-start gap-4">
-                                <Mail className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
-                                <div>
-                                    <h4 className="font-semibold">Send emails to this group</h4>
-                                    <p className="text-sm text-muted-foreground">Get an email address that posts incoming emails in this group.</p>
-                                </div>
-                            </div>
-                        </div>
-
                         {/* Referral Information */}
                         <div className="space-y-4">
                             <h3 className="text-sm font-medium text-muted-foreground">Referral Information</h3>
@@ -139,17 +139,6 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                             <div>
                                 <h4 className="font-semibold text-sm mb-1">Community Liaison</h4>
                                 <p className="text-sm">Zammad Khan</p>
-                            </div>
-                            <div className="space-y-2">
-                                {documents.map((doc, index) => (
-                                     <div key={index} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50">
-                                         <FileText className="h-6 w-6 text-destructive flex-shrink-0" />
-                                         <div>
-                                             <p className="text-sm font-medium">{doc.name}</p>
-                                             <p className="text-xs text-muted-foreground">{doc.date}</p>
-                                         </div>
-                                     </div>
-                                ))}
                             </div>
                         </div>
 
@@ -163,6 +152,31 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                             </div>
                         </div>
 
+                        {/* PDFs and Docs */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium text-muted-foreground">PDFs and Docs</h3>
+                            <Button 
+                                variant="ghost" 
+                                className="w-full justify-start gap-3 text-sm"
+                                onClick={() => setShowAllDocs(!showAllDocs)}
+                            >
+                                <FileText className="h-5 w-5 text-primary" />
+                                <span>{showAllDocs ? 'Hide Documents' : 'View All Documents'}</span>
+                            </Button>
+                            {showAllDocs && (
+                                <div className="space-y-2">
+                                    {documents.map((doc, index) => (
+                                        <div key={index} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50">
+                                            <FileText className="h-5 w-5 text-destructive flex-shrink-0" />
+                                            <div>
+                                                <p className="text-sm font-medium">{doc.name}</p>
+                                                <p className="text-xs text-muted-foreground">{doc.date}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                          {/* Actions */}
                         <div className="space-y-3 border-t pt-4">
@@ -174,13 +188,19 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                                 <Settings className="h-5 w-5 text-primary" />
                                 <span>Group Settings</span>
                             </Button>
+                             <Button variant="ghost" className="w-full justify-start gap-3 text-sm">
+                                <Download className="h-5 w-5 text-primary" />
+                                <span>Export Chat</span>
+                            </Button>
                         </div>
+
+                        {/* PDFs and Docs */}
+
                     </div>
                 </TabsContent>
                 <TabsContent value="members" className="m-4">Members information goes here.</TabsContent>
-                <TabsContent value="vitals" className="m-4">Vitals information goes here.</TabsContent>
                 <TabsContent value="settings" className="m-4">Settings information goes here.</TabsContent>
-            </ScrollArea>
+            </div>
         </Tabs>
       </div>
     </div>
