@@ -9,10 +9,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { usePageTitle } from '@/components/layout/header';
-import { useEffect } from 'react';
+import { SOCTemplateModal } from '@/components/templates/soc-template-modal';
+import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
   const { setPageTitle } = usePageTitle();
+  const [isSOCModalOpen, setIsSOCModalOpen] = useState(false);
 
   useEffect(() => {
     setPageTitle('My Dashboard');
@@ -51,7 +53,7 @@ export default function DashboardPage() {
                     <div className="text-2xl font-bold">12</div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setIsSOCModalOpen(true)}>
                 <CardHeader>
                     <CardTitle>Pending SOC</CardTitle>
                 </CardHeader>
@@ -121,6 +123,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      
+      <SOCTemplateModal 
+        isOpen={isSOCModalOpen} 
+        onClose={() => setIsSOCModalOpen(false)} 
+      />
     </div>
   );
 }

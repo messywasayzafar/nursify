@@ -18,6 +18,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { EditPatientSheet } from './edit-patient-sheet';
+import { SOCTemplateModal } from '@/components/templates/soc-template-modal';
+import { ROCTemplateModal } from '@/components/templates/roc-template-modal';
+import { RecertTemplateModal } from '@/components/templates/recert-template-modal';
+import { TransferTemplateModal } from '@/components/templates/transfer-template-modal';
+import { ChangeFrequencyTemplateModal } from '@/components/templates/change-frequency-template-modal';
+import { TherapyEvaluationTemplateModal } from '@/components/templates/therapy-evaluation-template-modal';
 
 
 interface ChatMessagesProps {
@@ -42,6 +48,12 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isPatientSheetOpen, setIsPatientSheetOpen] = useState(false);
+  const [isSOCModalOpen, setIsSOCModalOpen] = useState(false);
+  const [isROCModalOpen, setIsROCModalOpen] = useState(false);
+  const [isRecertModalOpen, setIsRecertModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isChangeFrequencyModalOpen, setIsChangeFrequencyModalOpen] = useState(false);
+  const [isTherapyEvaluationModalOpen, setIsTherapyEvaluationModalOpen] = useState(false);
 
   const filteredMessages = useMemo(() => {
     if (!searchTerm) {
@@ -67,7 +79,21 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   };
 
   const handleTemplateSelect = (template: string) => {
-    setNewMessage(template);
+    if (template === 'Start Of Care - SOC') {
+      setIsSOCModalOpen(true);
+    } else if (template === 'Resumption Of Care - ROC') {
+      setIsROCModalOpen(true);
+    } else if (template === 'Recertification') {
+      setIsRecertModalOpen(true);
+    } else if (template === 'Transfer') {
+      setIsTransferModalOpen(true);
+    } else if (template === 'Change Frequency') {
+      setIsChangeFrequencyModalOpen(true);
+    } else if (template === 'Therapy Evaluation') {
+      setIsTherapyEvaluationModalOpen(true);
+    } else {
+      setNewMessage(template);
+    }
   };
 
   if (!selectedChat) {
@@ -256,6 +282,36 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
           </div>
         </form>
       </div>
+      
+      <SOCTemplateModal 
+        isOpen={isSOCModalOpen} 
+        onClose={() => setIsSOCModalOpen(false)} 
+      />
+      
+      <ROCTemplateModal 
+        isOpen={isROCModalOpen} 
+        onClose={() => setIsROCModalOpen(false)} 
+      />
+      
+      <RecertTemplateModal 
+        isOpen={isRecertModalOpen} 
+        onClose={() => setIsRecertModalOpen(false)} 
+      />
+      
+      <TransferTemplateModal 
+        isOpen={isTransferModalOpen} 
+        onClose={() => setIsTransferModalOpen(false)} 
+      />
+      
+      <ChangeFrequencyTemplateModal 
+        isOpen={isChangeFrequencyModalOpen} 
+        onClose={() => setIsChangeFrequencyModalOpen(false)} 
+      />
+      
+      <TherapyEvaluationTemplateModal 
+        isOpen={isTherapyEvaluationModalOpen} 
+        onClose={() => setIsTherapyEvaluationModalOpen(false)} 
+      />
     </div>
   );
 }

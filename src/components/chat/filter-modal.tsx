@@ -31,61 +31,6 @@ export function FilterModal({ setOpen }: FilterModalProps) {
       </DialogHeader>
       
       <div className="p-4 space-y-4">
-        {/* Filter by patient status */}
-        <Collapsible open={patientStatusOpen} onOpenChange={setPatientStatusOpen}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 text-left font-medium">
-            Filter by patient status
-            <ChevronDown className={`h-4 w-4 transition-transform ${patientStatusOpen ? 'rotate-180' : ''}`} />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 p-2">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="non-admit" />
-                <Label htmlFor="non-admit" className="text-sm flex items-center">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                  Non Admit
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="pending-soc" />
-                <Label htmlFor="pending-soc" className="text-sm flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                  Pending SOC
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="active" />
-                <Label htmlFor="active" className="text-sm flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  Active
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="hospitalized" />
-                <Label htmlFor="hospitalized" className="text-sm flex items-center">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                  Hospitalized
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="pending-roc" />
-                <Label htmlFor="pending-roc" className="text-sm flex items-center">
-                  <span className="w-2 h-2 bg-red-600 rounded-full mr-2"></span>
-                  Pending ROC
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="discharged" />
-                <Label htmlFor="discharged" className="text-sm flex items-center">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                  Discharged
-                </Label>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <hr />
 
         {/* Filter by service status */}
         <Collapsible open={serviceStatusOpen} onOpenChange={setServiceStatusOpen}>
