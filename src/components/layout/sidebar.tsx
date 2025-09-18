@@ -16,6 +16,8 @@ import {
   HeartPulse,
   CreditCard,
   FileText,
+  UserCheck,
+  Contact,
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +32,10 @@ import {
 
 const navItems = [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
+    { href: '/internal-groups', icon: Users2, label: 'Internal groups' },
     { href: '/patients', icon: HeartPulse, label: 'Patients', badge: '6' },
+    { href: '/individual', icon: UserCheck, label: 'Individual' },
+    { href: '/contacts', icon: Contact, label: 'Contacts' },
     { href: '/users', icon: Users, label: 'Staff' },
     { href: '/groups', icon: Users2, label: 'Groups' },
     { href: '/chat', icon: MessageSquare, label: 'Chats', badge: '3' },

@@ -24,6 +24,7 @@ import {
   MoreVertical,
   X,
   Plus,
+  Images,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -180,6 +181,12 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                     </DialogTrigger>
                     <ReportCenterModal setOpen={setIsReportCenterModalOpen} />
                 </Dialog>
+                <DropdownMenuItem asChild>
+                  <Link href="/organizational-media">
+                    <Images className="mr-2 h-4 w-4" />
+                    <span>Organizational Media</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <Dialog open={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen}>
                   <DialogTrigger asChild>
