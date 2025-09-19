@@ -24,6 +24,9 @@ import { RecertTemplateModal } from '@/components/templates/recert-template-moda
 import { TransferTemplateModal } from '@/components/templates/transfer-template-modal';
 import { ChangeFrequencyTemplateModal } from '@/components/templates/change-frequency-template-modal';
 import { TherapyEvaluationTemplateModal } from '@/components/templates/therapy-evaluation-template-modal';
+import { DischargeOasisModal } from './discharge-oasis-modal';
+import { RevisitModal } from './revisit-modal';
+import { TransferDischargeModal } from './transfer-discharge-modal';
 
 
 interface ChatMessagesProps {
@@ -34,12 +37,11 @@ const templates = [
   'Start Of Care - SOC',
   'Resumption Of Care - ROC',
   'Recertification',
-  'Transfer',
-  'Transfer Discharge',
+  'Re-Vist/ Missed Visit',
+  'Transfer/Transfer Discharge',
   'Discharge OASIS',
-  'Change Frequency',
-  'Therapy Evaluation',
-  'Therapy Reassessment',
+  'Change Frequency', 
+  'Therapy Evaluation/ Reassessment',
 ];
 
 export function ChatMessages({ selectedChat }: ChatMessagesProps) {
@@ -54,6 +56,9 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isChangeFrequencyModalOpen, setIsChangeFrequencyModalOpen] = useState(false);
   const [isTherapyEvaluationModalOpen, setIsTherapyEvaluationModalOpen] = useState(false);
+  const [isDischargeOasisModalOpen, setIsDischargeOasisModalOpen] = useState(false);
+  const [isRevisitModalOpen, setIsRevisitModalOpen] = useState(false);
+  const [isTransferDischargeModalOpen, setIsTransferDischargeModalOpen] = useState(false);
 
   const filteredMessages = useMemo(() => {
     if (!searchTerm) {
@@ -85,12 +90,16 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
       setIsROCModalOpen(true);
     } else if (template === 'Recertification') {
       setIsRecertModalOpen(true);
-    } else if (template === 'Transfer') {
-      setIsTransferModalOpen(true);
+    } else if (template === 'Transfer/Transfer Discharge') {
+      setIsTransferDischargeModalOpen(true);
     } else if (template === 'Change Frequency') {
       setIsChangeFrequencyModalOpen(true);
-    } else if (template === 'Therapy Evaluation') {
+    } else if (template === 'Therapy Evaluation/ Reassessment') {
       setIsTherapyEvaluationModalOpen(true);
+    } else if (template === 'Discharge OASIS') {
+      setIsDischargeOasisModalOpen(true);
+    } else if (template === 'Re-Vist/ Missed Visit') {
+      setIsRevisitModalOpen(true);
     } else {
       setNewMessage(template);
     }
@@ -308,9 +317,24 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
         onClose={() => setIsChangeFrequencyModalOpen(false)} 
       />
       
-      <TherapyEvaluationTemplateModal 
+      < TherapyEvaluationTemplateModal 
         isOpen={isTherapyEvaluationModalOpen} 
         onClose={() => setIsTherapyEvaluationModalOpen(false)} 
+      />
+      
+      <DischargeOasisModal 
+        open={isDischargeOasisModalOpen} 
+        onOpenChange={setIsDischargeOasisModalOpen} 
+      />
+      
+      <RevisitModal 
+        open={isRevisitModalOpen} 
+        onOpenChange={setIsRevisitModalOpen} 
+      />
+      
+      <TransferDischargeModal 
+        open={isTransferDischargeModalOpen} 
+        onOpenChange={setIsTransferDischargeModalOpen} 
       />
     </div>
   );

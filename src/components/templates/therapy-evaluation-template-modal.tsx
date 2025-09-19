@@ -37,10 +37,10 @@ export function TherapyEvaluationTemplateModal({ isOpen, onClose }: TherapyEvalu
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Templates</h2>
             <Button
-              variant="ghost"
+              // variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-white hover:bg-teal-700 p-1"
+              // className="text-white hover:bg-teal-700 p-1"
             >
               <X className="h-4 w-4" />
             </Button>
