@@ -1,7 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { SmartReferralAssistantOutput } from '@/ai/flows/smart-referral-assistant';
+// Local type definition
+type SmartReferralAssistantOutput = {
+  recommendations: Array<{
+    staffId: string;
+    reason: string;
+  }>;
+};
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
