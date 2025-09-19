@@ -35,17 +35,7 @@ export function RevisitModal({ open, onOpenChange }: RevisitModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader className="bg-primary text-primary-foreground p-4 -m-6 mb-6">
-          <div className="flex items-center justify-between">
-            <DialogTitle>Templates</DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="text-primary-foreground hover:bg-primary-foreground/20"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-center">Templates</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
