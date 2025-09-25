@@ -1,0 +1,155 @@
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import maplibregl from 'maplibre-gl';
+import { fetchAuthSession } from 'aws-amplify/auth';
+import { MapPin } from 'lucide-react';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { useAuth } from '../auth/auth-provider';
+import { SignatureV4 } from '@aws-sdk/signature-v4';
+import { Sha256 } from '@aws-crypto/sha256-js';
+import { HttpRequest } from '@aws-sdk/protocol-http';
+
+interface AmazonLocationMapProps {
+  onAreaSelect?: (coordinates: [number, number]) => void;
+}
+
+export function AmazonLocationMap({ onAreaSelect }: AmazonLocationMapProps) {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+  const { user, loading } = useAuth();
+  const [mapError, setMapError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!mapContainer.current || map.current || !user) return;
+
+    const initializeMap = async () => {
+      try {
+        const session = await fetchAuthSession();
+        const { credentials } = session;
+
+        if (!credentials) {
+          throw new Error('No credentials available');
+        }
+
+        // Setup AWS SigV4 signer for Location Service
+        const signer = new SignatureV4({
+          credentials,
+          region: 'us-east-1',
+          service: 'geo',
+          sha256: Sha256,
+        });
+
+        // Function to sign requests
+        const signRequest = async (url: string) => {
+          const request = new HttpRequest({
+            method: 'GET',
+            protocol: 'https:',
+            path: url.split('.com')[1],
+            hostname: url.split('https://')[1].split('/')[0],
+          });
+
+          const signed = await signer.sign(request);
+          return {
+            url,
+            headers: signed.headers as Record<string, string>,
+          };
+        };
+
+        // Initialize map
+        map.current = new maplibregl.Map({
+          container: mapContainer.current!,
+          style:
+            'https://maps.geo.us-east-1.amazonaws.com/maps/v0/maps/nursify-map/style-descriptor',
+          center: [-87.6298, 41.8781],
+          zoom: 10,
+          transformRequest: (url, resourceType) => {
+            if (url.includes('amazonaws.com')) {
+              return {
+                url,
+                headers: {}, // temporary, will be signed below
+              };
+            }
+            return { url };
+          },
+        });
+
+        map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        // Click to add marker
+        map.current.on('click', (e) => {
+          const { lng, lat } = e.lngLat;
+          onAreaSelect?.([lng, lat]);
+          new maplibregl.Marker().setLngLat([lng, lat]).addTo(map.current!);
+        });
+
+        // Example markers
+        new maplibregl.Marker({ color: 'red' })
+          .setLngLat([-87.7845, 41.885])
+          .setPopup(new maplibregl.Popup().setHTML('<h3>Oak Park, IL</h3>'))
+          .addTo(map.current);
+
+        new maplibregl.Marker({ color: 'blue' })
+          .setLngLat([-87.6298, 41.8781])
+          .setPopup(new maplibregl.Popup().setHTML('<h3>Chicago, IL</h3>'))
+          .addTo(map.current);
+
+        // Patch: sign all AWS requests once the map loads
+        map.current.on('styledata', async () => {
+          const sources = map.current?.getStyle().sources;
+          if (sources) {
+            for (const id of Object.keys(sources)) {
+              const tiles = (sources[id] as any).tiles;
+              if (tiles) {
+                for (let i = 0; i < tiles.length; i++) {
+                  const signed = await signRequest(tiles[i]);
+                  (sources[id] as any).tiles[i] = signed.url;
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Failed to initialize map:', error);
+        setMapError('Failed to load map');
+      }
+    };
+
+    initializeMap();
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, [onAreaSelect, user]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+        <p>Loading map...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300">
+        <MapPin className="h-12 w-12 text-gray-400 mb-2" />
+        <p className="text-gray-600">Please log in to view the map</p>
+      </div>
+    );
+  }
+
+  if (mapError) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300">
+        <MapPin className="h-12 w-12 text-red-400 mb-2" />
+        <p className="text-red-600">{mapError}</p>
+      </div>
+    );
+  }
+
+  return <div ref={mapContainer} className="w-full h-full" />;
+}

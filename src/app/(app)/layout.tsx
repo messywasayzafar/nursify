@@ -3,6 +3,7 @@
 
 import { AppHeader, PageTitleProvider } from '@/components/layout/header';
 import { AppFooter } from '@/components/layout/footer';
+import { RouteGuard } from '@/components/auth/route-guard';
 import { useState, useId } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -56,14 +57,16 @@ export default function AppLayout({
   };
 
   return (
-    <PageTitleProvider value={{ pageTitle, setPageTitle }}>
-      <div className="flex min-h-screen w-full flex-col">
-        <AppHeader onMinimize={minimizePage} onClose={closePage} pathname={pathname} />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
-          {children}
-        </main>
-        <AppFooter minimizedTabs={minimizedTabs} onCloseTab={closeTab} />
-      </div>
-    </PageTitleProvider>
+    <RouteGuard>
+      <PageTitleProvider value={{ pageTitle, setPageTitle }}>
+        <div className="flex min-h-screen w-full flex-col">
+          <AppHeader onMinimize={minimizePage} onClose={closePage} pathname={pathname} />
+          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
+            {children}
+          </main>
+          <AppFooter minimizedTabs={minimizedTabs} onCloseTab={closeTab} />
+        </div>
+      </PageTitleProvider>
+    </RouteGuard>
   );
 }

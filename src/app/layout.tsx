@@ -1,7 +1,6 @@
 import type {Metadata} from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster";
-
+import ClientProviders from './client-providers';
 export const metadata: Metadata = {
   title: 'Nursify Portal',
   description: 'A healthcare SaaS app for agencies and users.',
@@ -20,8 +19,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        {children}
-        <Toaster />
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );

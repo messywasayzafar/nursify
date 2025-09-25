@@ -22,13 +22,57 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useState } from 'react';
+import { AmazonGeofenceMap } from '../map/AmazonGeofenceMap';
 
+const MapComponent = ({ onAddressSelect }: { onAddressSelect: (address: string) => void }) => {
+  const [map, setMap] = useState<maplibregl.Map | null>(null);
+  
+  React.useEffect(() => {
+    const initMap = async () => {
+      try {
+        const session = await fetchAuthSession({ forceRefresh: true });
+        if (!session.credentials) return;
+        
+        const mapInstance = new maplibregl.Map({
+          container: 'user-map',
+          center: [-74.5, 40],
+          zoom: 9,
+          style: 'https://maps.geo.us-east-1.amazonaws.com/v2/styles/Standard/descriptor?color-scheme=Light'
+        });
+        
+        mapInstance.on('click', async (e) => {
+          const { lng, lat } = e.lngLat;
+          try {
+            const results = await Geo.searchByCoordinates([lng, lat]);
+            if (results.length > 0) {
+              onAddressSelect(results[0].label);
+            }
+          } catch (error) {
+            console.error('Geocoding error:', error);
+          }
+        });
+        
+        setMap(mapInstance);
+      } catch (error) {
+        console.error('Map error:', error);
+      }
+    };
+    
+    initMap();
+    return () => map?.remove();
+  }, []);
+  
+  return <div id="user-map" style={{ height: '200px', width: '100%' }} />;
+};
 interface AddUserModalProps {
   setOpen: (open: boolean) => void;
   onUserAdded: () => void;
 }
 
 export function AddUserModal({ setOpen, onUserAdded }: AddUserModalProps) {
+  const [workingAreaSearch, setWorkingAreaSearch] = useState('');
+  
   const handleSubmit = () => {
     // a real app would do form validation and API calls here
     onUserAdded();
@@ -119,8 +163,23 @@ export function AddUserModal({ setOpen, onUserAdded }: AddUserModalProps) {
             </div>
           </div>
            <div className="grid gap-2">
-            <Label htmlFor="address">Home Address</Label>
-            <Input id="address" placeholder="Enter home address" />
+            <Label htmlFor="working-area">Working Area</Label>
+            <Input 
+              id="working-area" 
+              placeholder="Enter working area" 
+              value={workingAreaSearch}
+              onChange={(e) => setWorkingAreaSearch(e.target.value)}
+            />
+            <AmazonGeofenceMap 
+              searchLocation={workingAreaSearch}
+              onGeofenceCreate={(geofence) => {
+                console.log('Geofence created:', geofence);
+              }} 
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="home-address">Home Address</Label>
+            <Input id="home-address" placeholder="Enter home address" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="grid gap-2">

@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '@/components/auth/auth-provider';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { EditProfileModal } from '../profile/edit-profile-modal';
 import React, { createContext, useContext, useState } from 'react';
@@ -76,10 +77,40 @@ interface AppHeaderProps {
   onClose: () => void;
   pathname: string;
 }
-
 export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
   const router = useRouter();
   const { pageTitle } = usePageTitle();
+  const { user } = useAuth();
+  const [displayName, setDisplayName] = React.useState('Guest');
+  
+  React.useEffect(() => {
+    const fetchUserName = async () => {
+      if (!user) {
+        setDisplayName('Guest');
+        return;
+      }
+      
+      try {
+        const { fetchUserAttributes } = await import('aws-amplify/auth');
+        const attributes = await fetchUserAttributes();
+        
+        const fullName = attributes.name || 
+                        (attributes.given_name && attributes.family_name ? 
+                         `${attributes.given_name} ${attributes.family_name}` : null) ||
+                        attributes.email ||
+                        user.username;
+        
+        setDisplayName(fullName);
+      } catch (error) {
+        console.error('Error fetching user attributes:', error);
+        setDisplayName(user.email || user.username || 'Guest');
+      }
+    };
+    
+    fetchUserName();
+  }, [user]);
+  
+  console.log('User data in header:', user);
 
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [isSwitchOrgModalOpen, setIsSwitchOrgModalOpen] = React.useState(false);
@@ -89,8 +120,15 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
   const [isNewPatientGroupModalOpen, setIsNewPatientGroupModalOpen] = React.useState(false);
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = React.useState(false);
 
-  const handleLogout = () => {
-    // TODO: Implement actual logout logic
+  const handleLogout = async () => {
+    try {
+      const { signOut } = await import('aws-amplify/auth');
+      await signOut({ global: true });
+      localStorage.removeItem('userProfile');
+      localStorage.removeItem('currentUser');
+    } catch (error) {
+      console.log('Logout error:', error);
+    }
     router.push('/login');
   };
 
@@ -108,7 +146,7 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
         </div>
         <div className="flex flex-1 items-center justify-end">
            <div className="flex items-center gap-2">
-              <p className="font-semibold">Noman Nizam, Intake</p>
+              <p className="font-semibold">{displayName}, Intake</p>
           </div>
         </div>
       </div>
@@ -144,15 +182,10 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                     <span>User</span>
                   </Link>
                 </DropdownMenuItem>
-                <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Edit Profile</span>
-                    </DropdownMenuItem>
-                  </DialogTrigger>
-                  <EditProfileModal setOpen={setIsProfileModalOpen} />
-                </Dialog>
+                <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Edit Profile</span>
+                </DropdownMenuItem>
                 <Dialog open={isSwitchOrgModalOpen} onOpenChange={setIsSwitchOrgModalOpen}>
                   <DialogTrigger asChild>
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -188,20 +221,18 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <Dialog open={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen}>
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      <LockKeyhole className="mr-2 h-4 w-4" />
-                      <span>Reset Password</span>
-                    </DropdownMenuItem>
-                  </DialogTrigger>
-                  <ResetPasswordModal setOpen={setIsResetPasswordModalOpen} />
-                </Dialog>
+                <DropdownMenuItem onClick={() => setIsResetPasswordModalOpen(true)}>
+                  <LockKeyhole className="mr-2 h-4 w-4" />
+                  <span>Reset Password</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Log Out</span></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
         </div>
       </nav>
+      
+      {isProfileModalOpen && <EditProfileModal setOpen={setIsProfileModalOpen} />}
+      {isResetPasswordModalOpen && <ResetPasswordModal setOpen={setIsResetPasswordModalOpen} />}
 
       {/* Title Bar */}
       <div className="hidden md:flex h-12 items-center px-4 lg:px-6">

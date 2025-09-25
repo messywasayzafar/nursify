@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::nursify-profile-images/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "geo:GetMap*",
+        "geo:DescribeMap",
+        "geo:SearchPlaceIndexForText",
+        "geo:SearchPlaceIndexForPosition",
+        "geo:GetPlace"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "appsync:GraphQL"
+      ],
+      "Resource": "arn:aws:appsync:us-east-1:*:apis/*/types/*/fields/*"
+    }
+  ]
+}

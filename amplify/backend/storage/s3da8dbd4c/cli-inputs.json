@@ -1,0 +1,13 @@
+{
+  "resourceName": "s3da8dbd4c",
+  "policyUUID": "da8dbd4c",
+  "bucketName": "nursify-profile-images",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "triggerFunction": "S3Trigger0de6681a",
+  "groupAccess": {}
+}

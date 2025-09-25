@@ -1,0 +1,18 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "geo-maps:GetTile",
+            "Resource": "arn:aws:geo-maps:us-east-1::provider/default",
+            "Condition": {
+                "StringLike": {
+                    "aws:referer": [
+                        "https://www.example.com/*",
+                        "http://localhost:*/*"
+                    ]
+                }
+            }
+        }
+    ]
+}

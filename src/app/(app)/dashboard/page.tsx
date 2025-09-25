@@ -11,12 +11,18 @@ import {
 import { usePageTitle } from '@/components/layout/header';
 import { SOCTemplateModal } from '@/components/templates/soc-template-modal';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/components/auth/auth-provider';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+  const { user, loading } = useAuth();
+  console.log('[DashboardPage] Render, user:', user, 'loading:', loading);
+  const router = useRouter();
   const { setPageTitle } = usePageTitle();
   const [isSOCModalOpen, setIsSOCModalOpen] = useState(false);
 
   useEffect(() => {
+  console.log('[DashboardPage] useEffect, user:', user, 'loading:', loading);
     setPageTitle('My Dashboard');
     return () => setPageTitle(''); // Reset on unmount
   }, [setPageTitle]);
@@ -41,66 +47,70 @@ export default function DashboardPage() {
     { name: 'Angela', date: '11 July', age: 45 },
   ];
 
+  if (loading) {
+    return <div className="flex items-center justify-center h-full">Loading...</div>;
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <div className="flex-grow space-y-4">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Active Patients</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">12</div>
-                </CardContent>
-            </Card>
-            <Card className="cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setIsSOCModalOpen(true)}>
-                <CardHeader>
-                    <CardTitle>Pending SOC</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">8</div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Transfer Patient</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">3</div>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Recerts Due</CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-between">
-                  <div>
-                    <div className="text-2xl font-bold">12</div>
-                    <p className="text-xs text-muted-foreground">This week</p>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold">45</div>
-                    <p className="text-xs text-muted-foreground">This month</p>
-                  </div>
-                </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Patients</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">12</div>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setIsSOCModalOpen(true)}>
+            <CardHeader>
+              <CardTitle>Pending SOC</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">8</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Transfer Patient</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">3</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recerts Due</CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-between">
+              <div>
+                <div className="text-2xl font-bold">12</div>
+                <p className="text-xs text-muted-foreground">This week</p>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">45</div>
+                <p className="text-xs text-muted-foreground">This month</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Alerts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        {alerts.map((alert, index) => (
-                            <div key={index}>
-                                <p className="font-bold">{alert.title}</p>
-                                <p className="text-sm text-muted-foreground">{alert.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Alerts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {alerts.map((alert, index) => (
+                  <div key={index}>
+                    <p className="font-bold">{alert.title}</p>
+                    <p className="text-sm text-muted-foreground">{alert.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <div className="mt-4">
@@ -123,7 +133,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      
       <SOCTemplateModal 
         isOpen={isSOCModalOpen} 
         onClose={() => setIsSOCModalOpen(false)} 

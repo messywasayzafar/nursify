@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import * as XLSX from 'xlsx';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,13 @@ export default function UsersPage() {
     setIsWorkingAreaModalOpen(false);
     setIsPermissionModalOpen(true);
   }
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredUsers);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    XLSX.writeFile(workbook, 'users.xlsx');
+  };
 
   const filteredUsers = mockUsers.filter(user => {
     const statusMatch = statusFilter === 'All' || user.status === statusFilter;
@@ -165,7 +173,7 @@ export default function UsersPage() {
             <Dialog open={isPermissionModalOpen} onOpenChange={setIsPermissionModalOpen}>
                 <SelectPermissionModal setOpen={setIsPermissionModalOpen} />
             </Dialog>
-            <Button className="bg-primary hover:bg-primary/90">Export To Excel</Button>
+            <Button onClick={exportToExcel} className="bg-primary hover:bg-primary/90">Export To Excel</Button>
           </div>
         </div>
       </CardContent>
