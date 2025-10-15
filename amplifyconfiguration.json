@@ -1,0 +1,54 @@
+{
+  "aws_project_region": "us-east-1",
+
+  "aws_appsync_graphqlEndpoint": "https://u6su2h6bendq3lxg2boncccs5y.appsync-api.us-east-1.amazonaws.com/graphql",
+  "aws_appsync_region": "us-east-1",
+  "aws_appsync_authenticationType": "AMAZON_COGNITO_USER_POOLS",
+
+  "aws_cognito_region": "us-east-1",
+  "aws_user_pools_id": "us-east-1_8C0HCUlTs",
+  "aws_user_pools_web_client_id": "4fc3ljot75fpv3lc6th1t8j8vn",
+  "aws_cognito_identity_pool_id": "us-east-1:7f04ba4b-e4cc-4299-b5b8-96a9cbbac471",
+  "Auth": {
+    "Cognito": {
+      "userPoolId": "us-east-1_8C0HCUlTs",
+      "userPoolClientId": "4fc3ljot75fpv3lc6th1t8j8vn",
+      "region": "us-east-1",
+      "identityPoolId": "us-east-1:7f04ba4b-e4cc-4299-b5b8-96a9cbbac471"
+    }
+  },
+
+
+  "aws_user_files_s3_bucket": "nursify-profile-images",
+  "aws_user_files_s3_bucket_region": "us-east-1",
+  "Storage": {
+    "S3": {
+      "bucket": "nursify-profile-images",
+      "region": "us-east-1",
+      "accessLevel": "private"
+    }
+  },
+
+ 
+  "geo": {
+    "amazon_location_service": {
+      "region": "us-east-1",
+      "maps": {
+        "items": {
+          "nursify-map": {
+            "style": "VectorEsriStreets"
+          }
+        },
+        "default": "nursify-map"
+      },
+      "geofenceCollections": {
+        "items": {
+          "nursify-geofences": {
+            "region": "us-east-1"
+          }
+        },
+        "default": "nursify-geofences"
+      }
+    }
+  }
+}
