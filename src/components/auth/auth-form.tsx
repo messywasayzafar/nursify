@@ -1,10 +1,5 @@
 "use client";
-import { Amplify } from 'aws-amplify';
-import awsExports from '../../../amplifyconfiguration.json';
-
-// Force reconfigure to clear cache
-Amplify.configure(awsExports, { ssr: false });
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -46,6 +41,10 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ mode, onSuccess }: AuthFormProps) {
+  useEffect(() => {
+    import('@/lib/amplify-config');
+  }, []);
+  
   const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

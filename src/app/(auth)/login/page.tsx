@@ -23,7 +23,7 @@ export default function LoginPage() {
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader className="text-center">
         <Stethoscope className="mx-auto h-12 w-12 text-primary" />
-        <CardTitle className="text-2xl font-bold">Nursify Portal</CardTitle>
+        <CardTitle className="text-2xl font-bold">Medhexa</CardTitle>
         <CardDescription>Enter your email below to login to your account</CardDescription>
       </CardHeader>
       <CardContent>
