@@ -25,7 +25,9 @@ import {
   X,
   Plus,
   Images,
+  FileText,
 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -67,7 +69,7 @@ function NursifyLogo() {
   return (
     <div className="flex items-center gap-2 font-semibold">
       <Stethoscope className="h-8 w-8 text-primary-foreground" />
-      <span className="text-lg">Nursify Portal</span>
+      <span className="text-lg">Medhexa</span>
     </div>
   );
 }
@@ -80,13 +82,18 @@ interface AppHeaderProps {
 export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
   const router = useRouter();
   const { pageTitle } = usePageTitle();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [displayName, setDisplayName] = React.useState('Guest');
+  const [companyName, setCompanyName] = React.useState('Agency Name');
+  const [hasNPI, setHasNPI] = React.useState(false);
+  const [profilePicture, setProfilePicture] = React.useState<string | null>(null);
   
   React.useEffect(() => {
-    const fetchUserName = async () => {
+    const fetchUserData = async () => {
       if (!user) {
         setDisplayName('Guest');
+        setCompanyName('Agency Name');
+        setHasNPI(false);
         return;
       }
       
@@ -100,17 +107,34 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                         attributes.email ||
                         user.username;
         
+        // Get company name from custom attributes
+        const company = attributes['custom:company_name'] || 
+                       attributes['custom:company'] || 
+                       attributes['custom:organization'] || 
+                       attributes['custom:agency'] ||
+                       'Agency Name';
+        
+        // Check if user has NPI number
+        const npiNumber = attributes['custom:NPI_number'];
+        const hasNPINumber = !!npiNumber && npiNumber.trim() !== '';
+        
+        // Get profile picture URL from S3
+        const pictureUrl = attributes.picture || null;
         setDisplayName(fullName);
+        setCompanyName(company);
+        setHasNPI(hasNPINumber);
+        setProfilePicture(pictureUrl);
       } catch (error) {
-        console.error('Error fetching user attributes:', error);
         setDisplayName(user.email || user.username || 'Guest');
+        setCompanyName('Agency Name');
+        setHasNPI(false);
       }
     };
     
-    fetchUserName();
+    fetchUserData();
   }, [user]);
   
-  console.log('User data in header:', user);
+
 
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [isSwitchOrgModalOpen, setIsSwitchOrgModalOpen] = React.useState(false);
@@ -121,19 +145,11 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = React.useState(false);
 
   const handleLogout = async () => {
-    try {
-      const { signOut } = await import('aws-amplify/auth');
-      await signOut({ global: true });
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('currentUser');
-    } catch (error) {
-      console.log('Logout error:', error);
-    }
-    router.push('/login');
+    await signOut('/login');
   };
 
   const isDashboard = pathname === '/dashboard';
-
+ localStorage.setItem('companyname', companyName);
   return (
     <header className="flex flex-col border-b bg-card">
       {/* Top Bar */}
@@ -142,15 +158,15 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
           <NursifyLogo />
         </div>
         <div className="flex flex-1 justify-center text-xl font-bold">
-          Agency Name
+          {companyName}
         </div>
         <div className="flex flex-1 items-center justify-end">
-           <div className="flex items-center gap-2">
+           <div className="flex items-center gap-3">
               <p className="font-semibold">{displayName}, Intake</p>
+
           </div>
         </div>
       </div>
-
       {/* Navigation Bar */}
       <nav className="hidden md:flex h-12 items-center justify-end px-4 lg:px-6 border-b">
         <div className="flex items-center gap-4">
@@ -179,7 +195,7 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                 <DropdownMenuItem asChild>
                   <Link href="/users">
                     <Users className="mr-2 h-4 w-4" />
-                    <span>User</span>
+                    <span>Users</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
@@ -220,6 +236,14 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
                     <span>Organizational Media</span>
                   </Link>
                 </DropdownMenuItem>
+                {hasNPI && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/agreement">
+                      <FileText className="mr-2 h-4 w-4" />
+                      <span>Agreement</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setIsResetPasswordModalOpen(true)}>
                   <LockKeyhole className="mr-2 h-4 w-4" />
@@ -237,25 +261,23 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
       {/* Title Bar */}
       <div className="hidden md:flex h-12 items-center px-4 lg:px-6">
         <div className="flex flex-1 items-center gap-2">
+          {!isDashboard && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => setIsNewPatientGroupModalOpen(true)}>New Patient Groups</DropdownMenuItem>
+                <DropdownMenuItem>New Internal Group</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsBroadcastModalOpen(true)}>New Broadcast</DropdownMenuItem>
+                <DropdownMenuItem>Organizational Media</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <Dialog open={isNewPatientGroupModalOpen} onOpenChange={setIsNewPatientGroupModalOpen}>
-            {!isDashboard && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-8 w-8">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem>New Patient Groups</DropdownMenuItem>
-                  </DialogTrigger>
-                  <DropdownMenuItem>New Internal Group</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setIsBroadcastModalOpen(true)}>New Broadcast</DropdownMenuItem>
-                  <DropdownMenuItem>Organizational Media</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} />
+            <NewPatientGroupModal setOpen={setIsNewPatientGroupModalOpen} isOpen={isNewPatientGroupModalOpen} />
           </Dialog>
           <Dialog open={isBroadcastModalOpen} onOpenChange={setIsBroadcastModalOpen}>
             <BroadcastModal setOpen={setIsBroadcastModalOpen} />

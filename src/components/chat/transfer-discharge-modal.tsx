@@ -12,21 +12,46 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface TransferDischargeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSubmit?: (message: string) => void;
 }
 
-export function TransferDischargeModal({ open, onOpenChange }: TransferDischargeModalProps) {
-  const [transferDate, setTransferDate] = useState('09/12/2025');
+export function TransferDischargeModal({ open, onOpenChange, onSubmit }: TransferDischargeModalProps) {
+  const [activeTab, setActiveTab] = useState('transfer');
+  const [transferDate, setTransferDate] = useState<Date>();
   const [facilityName, setFacilityName] = useState('');
   const [reasonOfTransfer, setReasonOfTransfer] = useState('');
   const [physicianNotified, setPhysicianNotified] = useState('');
   const [notes, setNotes] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const data: any = {
+      transferDate: transferDate ? format(transferDate, "MM/dd/yyyy") : 'N/A',
+      facilityName: facilityName || 'N/A',
+      reasonOfTransfer: reasonOfTransfer || 'N/A',
+      physicianNotified: physicianNotified || 'N/A',
+      notes: notes || 'N/A'
+    };
+    
+    const templateData = {
+      type: activeTab === 'transfer' ? 'TRANSFER_TEMPLATE' : 'TRANSFERDISCHARGE_TEMPLATE',
+      data,
+      status: activeTab === 'transfer' ? 'Hospitalized' : 'Discharge'
+    };
+    
+    const message = JSON.stringify(templateData);
+    
+    if (onSubmit) {
+      await onSubmit(message);
+    }
     onOpenChange(false);
   };
 
@@ -38,7 +63,7 @@ export function TransferDischargeModal({ open, onOpenChange }: TransferDischarge
         </DialogHeader>
 
         <div className="space-y-6">
-          <Tabs defaultValue="transfer" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="transfer">Transfer</TabsTrigger>
               <TabsTrigger value="transfer-discharge">Transfer Discharge</TabsTrigger>
@@ -47,12 +72,29 @@ export function TransferDischargeModal({ open, onOpenChange }: TransferDischarge
             <TabsContent value="transfer" className="space-y-4 mt-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="transfer-date">Transfer Date</Label>
-                  <Input
-                    id="transfer-date"
-                    value={transferDate}
-                    onChange={(e) => setTransferDate(e.target.value)}
-                  />
+                  <Label>Transfer Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !transferDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {transferDate ? format(transferDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={transferDate}
+                        onSelect={setTransferDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="facility-name">Facility Name</Label>
@@ -99,12 +141,29 @@ export function TransferDischargeModal({ open, onOpenChange }: TransferDischarge
             <TabsContent value="transfer-discharge" className="space-y-4 mt-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="transfer-date-2">Transfer Date</Label>
-                  <Input
-                    id="transfer-date-2"
-                    value={transferDate}
-                    onChange={(e) => setTransferDate(e.target.value)}
-                  />
+                  <Label>Transfer Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !transferDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {transferDate ? format(transferDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={transferDate}
+                        onSelect={setTransferDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="facility-name-2">Facility Name</Label>

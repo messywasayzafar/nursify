@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Camera } from 'lucide-react';
 import { useAuth } from '@/components/auth/auth-provider';
+import { uploadData, getUrl } from 'aws-amplify/storage';
 
 interface EditProfileModalProps {
   setOpen: (open: boolean) => void;
@@ -13,6 +14,7 @@ interface EditProfileModalProps {
 export function EditProfileModal({ setOpen }: EditProfileModalProps) {
   const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [profileImage, setProfileImage] = useState('');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,29 +24,28 @@ export function EditProfileModal({ setOpen }: EditProfileModalProps) {
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
 
-  const { user } = useAuth();
-
   useEffect(() => {
     loadUserProfile();
-  }, [user]);
+  }, []);
 
-  const loadUserProfile = () => {
-    if (user) {
-      setFullName(user.fullName || user.username);
-      setEmail(user.email || user.username);
-    }
-    
-    // Load from localStorage
-    const saved = localStorage.getItem('userProfile');
-    if (saved) {
-      const profile = JSON.parse(saved);
-      setPhoneNumber(profile.phoneNumber || '');
-      setAddress(profile.address || '');
-      setCity(profile.city || '');
-      setState(profile.state || '');
-      setZipCode(profile.zipCode || '');
-      setProfileImage(profile.profileImage || '');
-    } else {
+  const loadUserProfile = async () => {
+    try {
+      const { fetchUserAttributes, getCurrentUser } = await import('aws-amplify/auth');
+      await getCurrentUser();
+      const attributes = await fetchUserAttributes();
+      
+      setFullName(attributes.name || '');
+      setEmail(attributes.email || '');
+      setPhoneNumber(attributes.phone_number || '');
+      setAddress(attributes.address || '');
+      setCity(attributes['custom:city'] || '');
+      setState(attributes['custom:state'] || '');
+      setZipCode(attributes['custom:zip_code'] || '');
+      setProfileImage(attributes.picture || '');
+    } catch (error) {
+      // User not authenticated, set empty values
+      setFullName('');
+      setEmail('');
       setPhoneNumber('');
       setAddress('');
       setCity('');
@@ -57,33 +58,43 @@ export function EditProfileModal({ setOpen }: EditProfileModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
-    if (!user) {
-      alert('You must be logged in to update your profile.');
-      setLoading(false);
-      return;
-    }
-
+    
     try {
-      const { updateUserAttributes } = await import('aws-amplify/auth');
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
       
-      const attributes: Record<string, string> = {};
-      if (fullName?.trim()) attributes.name = fullName.trim();
-      if (phoneNumber?.trim()) {
-        const formattedPhone = phoneNumber.trim().startsWith('+') ? phoneNumber.trim() : `+1${phoneNumber.trim().replace(/\D/g, '')}`;
-        attributes.phone_number = formattedPhone;
+      if (!session.tokens?.accessToken) {
+        throw new Error('Not authenticated');
       }
-      if (address?.trim()) attributes.address = address.trim();
-      if (city?.trim()) attributes['custom:city'] = city.trim();
-      if (state?.trim()) attributes['custom:state'] = state.trim();
-      if (zipCode?.trim()) attributes['custom:zipCode'] = zipCode.trim();
       
-      await updateUserAttributes({ userAttributes: attributes });
-      alert('Profile updated in Cognito successfully!');
+      // Use AWS SDK directly
+      const { CognitoIdentityProviderClient, UpdateUserAttributesCommand } = await import('@aws-sdk/client-cognito-identity-provider');
+      
+      const client = new CognitoIdentityProviderClient({ region: 'us-east-1' });
+      
+      const userAttributes = [];
+      if (fullName?.trim()) userAttributes.push({ Name: 'name', Value: fullName.trim() });
+      if (profileImage?.trim()) userAttributes.push({ Name: 'picture', Value: profileImage.trim() });
+      if (phoneNumber?.trim()) userAttributes.push({ Name: 'phone_number', Value: phoneNumber.trim() });
+      if (address?.trim()) userAttributes.push({ Name: 'address', Value: address.trim() });
+      if (city?.trim()) userAttributes.push({ Name: 'custom:city', Value: city.trim() });
+      if (state?.trim()) userAttributes.push({ Name: 'custom:state', Value: state.trim() });
+      if (zipCode?.trim()) userAttributes.push({ Name: 'custom:zip_code', Value: zipCode.trim() });
+      
+      if (userAttributes.length > 0) {
+        const command = new UpdateUserAttributesCommand({
+          AccessToken: session.tokens.accessToken.toString(),
+          UserAttributes: userAttributes
+        });
+        
+        await client.send(command);
+      }
+      
+      alert('Profile updated successfully!');
       setOpen(false);
     } catch (error) {
-      console.error('Error updating Cognito:', error);
-      alert('Failed to update Cognito. Please try again.');
+      console.error('Error saving profile:', error);
+      alert('Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -107,7 +118,7 @@ export function EditProfileModal({ setOpen }: EditProfileModalProps) {
                   <AvatarImage src={profileImage || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100&h=100&fit=crop&crop=face"} alt="User" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
-                <label className="absolute -bottom-2 -right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-teal-500 text-white">
+                <label className={`absolute -bottom-2 -right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full ${uploadingImage ? 'bg-gray-400' : 'bg-teal-500'} text-white`}>
                   <Camera className="h-4 w-4" />
                   <input 
                     type="file" 
@@ -118,23 +129,45 @@ export function EditProfileModal({ setOpen }: EditProfileModalProps) {
                       e.stopPropagation();
                       const file = e.target.files?.[0];
                       if (file) {
+                        setUploadingImage(true);
                         try {
-                          const { uploadData } = await import('aws-amplify/storage');
-                          const key = `profile-images/${user?.username}-${Date.now()}`;
+                          // Check if user is authenticated
+                          const { getCurrentUser } = await import('aws-amplify/auth');
+                          await getCurrentUser();
+                          
+                          // Preview image locally first
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            setProfileImage(event.target?.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                          
+                          // Upload to S3 using Amplify Storage
+                          const fileName = `profile-images/${Date.now()}-${file.name}`;
+                          
+                          console.log('Uploading to S3 with key:', fileName);
+                          
                           const result = await uploadData({
-                            key,
+                            key: fileName,
                             data: file,
                             options: {
-                              accessLevel: 'guest'
+                              contentType: file.type
                             }
                           }).result;
-                          setProfileImage(result.key);
+                          
+                          console.log('Upload result:', result);
+                          
+                          // Get the uploaded file URL
+                          const urlResult = await getUrl({ key: fileName });
+                          
+                          console.log('Generated URL:', urlResult.url.toString());
+                          setProfileImage(urlResult.url.toString());
+                          
                         } catch (error) {
-                          console.error('Upload failed:', error);
-                          // Fallback to base64
-                          const reader = new FileReader();
-                          reader.onload = (e) => setProfileImage(e.target?.result as string);
-                          reader.readAsDataURL(file);
+                          console.error('Upload error:', error);
+                          alert(`Failed to upload image: ${(error as any)?.message || 'Unknown error'}`);
+                        } finally {
+                          setUploadingImage(false);
                         }
                       }
                     }}

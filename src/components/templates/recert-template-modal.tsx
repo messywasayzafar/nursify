@@ -6,36 +6,117 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { X } from 'lucide-react';
+import { X, Calendar as CalendarIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface RecertTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit?: (message: string) => void;
+  groupId?: string;
 }
 
-export function RecertTemplateModal({ isOpen, onClose }: RecertTemplateModalProps) {
+export function RecertTemplateModal({ isOpen, onClose, onSubmit, groupId }: RecertTemplateModalProps) {
+  const [recertDate, setRecertDate] = useState<Date>();
+  const [hospitalDischargeDate, setHospitalDischargeDate] = useState<Date>();
   const [formData, setFormData] = useState({
-    recertDate: '09/12/2025',
     timeIn: '07:00 AM',
     timeOut: '08:00 AM',
     completedBy: 'Skilled Nurse',
     frequency: '1w9',
-    homeHealthAidFrequency: '2w9',
     assistanceNeeded: 'LPN (Licensed Practice Nurse)',
-    evaluate: 'PT (Physical Therapy)',
-    hospitalDischargeDate: '09/12/2025',
+    evaluate: [] as string[],
+    hha: false,
+    hhaFrequency: '',
     notes: ''
   });
 
-  const handleSubmit = () => {
-    console.log('Recert Template Data:', formData);
+  const handleEvaluateChange = (value: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      evaluate: checked 
+        ? [...prev.evaluate, value]
+        : prev.evaluate.filter(v => v !== value)
+    }));
+  };
+
+  const handleSubmit = async () => {
+    const data: any = {
+      recertDate: recertDate ? format(recertDate, "MM/dd/yyyy") : 'N/A',
+      timeIn: formData.timeIn || 'N/A',
+      timeOut: formData.timeOut || 'N/A',
+      completedBy: formData.completedBy,
+      frequency: formData.frequency,
+      assistanceNeeded: formData.assistanceNeeded,
+      hospitalDischargeDate: hospitalDischargeDate ? format(hospitalDischargeDate, "MM/dd/yyyy") : 'N/A',
+      notes: formData.notes || 'N/A'
+    };
+    
+    if (formData.evaluate.includes('PT')) data.pt = 'Evaluate';
+    if (formData.evaluate.includes('OT')) data.ot = 'Evaluate';
+    if (formData.evaluate.includes('ST')) data.st = 'Evaluate';
+    if (formData.evaluate.includes('MSW')) data.msw = 'Evaluate';
+    if (formData.hha) {
+      data.hha = 'Yes';
+      data.hhaFrequency = formData.hhaFrequency || 'N/A';
+    }
+    
+    const templateData = {
+      type: 'RECERT_TEMPLATE',
+      data
+    };
+    
+    const message = JSON.stringify(templateData);
+    
+    if (onSubmit) {
+      await onSubmit(message);
+    }
+    
+    if (groupId) {
+      try {
+        const { DynamoDBClient, UpdateItemCommand } = await import('@aws-sdk/client-dynamodb');
+        const { fetchAuthSession } = await import('aws-amplify/auth');
+        
+        const session = await fetchAuthSession();
+        const dynamoClient = new DynamoDBClient({
+          region: 'us-east-1',
+          credentials: session.credentials
+        });
+        
+        await dynamoClient.send(new UpdateItemCommand({
+          TableName: 'PatientGroups',
+          Key: {
+            groupId: { S: groupId }
+          },
+          UpdateExpression: 'SET #status = :status',
+          ExpressionAttributeNames: {
+            '#status': 'status'
+          },
+          ExpressionAttributeValues: {
+            ':status': { S: 'Active' }
+          }
+        }));
+        
+        window.dispatchEvent(new CustomEvent('groupStatusUpdated', {
+          detail: { groupId: groupId, status: 'Active' }
+        }));
+        window.dispatchEvent(new Event('storage'));
+      } catch (error) {
+        console.error('Error updating group status:', error);
+      }
+    }
+    
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] p-0 bg-slate-200">
+      <DialogContent className="max-w-2xl max-h-[80vh] p-0 bg-slate-200" hideClose>
         <div className="bg-teal-600 text-white p-4 rounded-t-lg">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Templates</h2>
@@ -51,19 +132,33 @@ export function RecertTemplateModal({ isOpen, onClose }: RecertTemplateModalProp
         </div>
 
         <div className="p-6 space-y-2 overflow-y-auto max-h-[calc(80vh-80px)]">
-          <Button variant="outline" size="sm" className="text-xs font-semibold">
-            Recertification - RECERT
-          </Button>
+          <h3 className="font-semibold text-sm">Recertification - RECERT</h3>
           
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <Label htmlFor="recertDate" className="text-sm font-medium">RECERT</Label>
-              <Input
-                id="recertDate"
-                value={formData.recertDate}
-                onChange={(e) => setFormData({ ...formData, recertDate: e.target.value })}
-                className="mt-1"
-              />
+              <Label className="text-sm font-medium">RECERT Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-1",
+                      !recertDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {recertDate ? format(recertDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={recertDate}
+                    onSelect={setRecertDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label htmlFor="timeIn" className="text-sm font-medium">Time In</Label>
@@ -90,12 +185,13 @@ export function RecertTemplateModal({ isOpen, onClose }: RecertTemplateModalProp
               <Label htmlFor="completedBy" className="text-sm font-medium">Completed By</Label>
               <Select value={formData.completedBy} onValueChange={(value) => setFormData({ ...formData, completedBy: value })}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue />
+                  <SelectValue placeholder="Select option" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Skilled Nurse">Skilled Nurse</SelectItem>
                   <SelectItem value="LPN">LPN</SelectItem>
                   <SelectItem value="Physical Therapist">Physical Therapist</SelectItem>
+                  <SelectItem value="MSW">MSW</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -110,27 +206,12 @@ export function RecertTemplateModal({ isOpen, onClose }: RecertTemplateModalProp
             </div>
           </div>
 
-          <div className="text-center">
-            <div className="inline-block">
-              <Label className="text-sm font-medium">Home Health Aid</Label>
-              <div className="mt-1">
-                <span className="text-sm font-medium mr-2">Add</span>
-                <span className="text-sm font-medium mr-4">Frequency</span>
-                <Input
-                  value={formData.homeHealthAidFrequency}
-                  onChange={(e) => setFormData({ ...formData, homeHealthAidFrequency: e.target.value })}
-                  className="inline-block w-20"
-                />
-              </div>
-            </div>
-          </div>
-
           <div className="grid grid-cols-3 gap-2">
             <div>
               <Label htmlFor="assistanceNeeded" className="text-sm font-medium">Assistance Needed</Label>
               <Select value={formData.assistanceNeeded} onValueChange={(value) => setFormData({ ...formData, assistanceNeeded: value })}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue />
+                  <SelectValue placeholder="Select option" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="LPN (Licensed Practice Nurse)">LPN (Licensed Practice Nurse)</SelectItem>
@@ -140,27 +221,93 @@ export function RecertTemplateModal({ isOpen, onClose }: RecertTemplateModalProp
               </Select>
             </div>
             <div>
-              <Label htmlFor="evaluate" className="text-sm font-medium">Evaluate</Label>
-              <Select value={formData.evaluate} onValueChange={(value) => setFormData({ ...formData, evaluate: value })}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PT (Physical Therapy)">PT (Physical Therapy)</SelectItem>
-                  <SelectItem value="OT (Occupational Therapy)">OT (Occupational Therapy)</SelectItem>
-                  <SelectItem value="ST (Speech Therapy)">ST (Speech Therapy)</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="text-sm font-medium">Hospital Discharge Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-1",
+                      !hospitalDischargeDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {hospitalDischargeDate ? format(hospitalDischargeDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={hospitalDischargeDate}
+                    onSelect={setHospitalDischargeDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
-              <Label htmlFor="hospitalDischargeDate" className="text-sm font-medium">Hospital Discharge Date</Label>
-              <Input
-                id="hospitalDischargeDate"
-                value={formData.hospitalDischargeDate}
-                onChange={(e) => setFormData({ ...formData, hospitalDischargeDate: e.target.value })}
-                className="mt-1"
-              />
+              <Label className="text-sm font-medium">Evaluate</Label>
+              <div className="mt-1 space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="eval-pt-recert" 
+                    checked={formData.evaluate.includes('PT')}
+                    onCheckedChange={(checked) => handleEvaluateChange('PT', checked as boolean)}
+                  />
+                  <Label htmlFor="eval-pt-recert" className="cursor-pointer">PT</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="eval-ot-recert" 
+                    checked={formData.evaluate.includes('OT')}
+                    onCheckedChange={(checked) => handleEvaluateChange('OT', checked as boolean)}
+                  />
+                  <Label htmlFor="eval-ot-recert" className="cursor-pointer">OT</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="eval-st-recert" 
+                    checked={formData.evaluate.includes('ST')}
+                    onCheckedChange={(checked) => handleEvaluateChange('ST', checked as boolean)}
+                  />
+                  <Label htmlFor="eval-st-recert" className="cursor-pointer">ST</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="eval-msw-recert" 
+                    checked={formData.evaluate.includes('MSW')}
+                    onCheckedChange={(checked) => handleEvaluateChange('MSW', checked as boolean)}
+                  />
+                  <Label htmlFor="eval-msw-recert" className="cursor-pointer">MSW</Label>
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-sm font-medium">HHA</Label>
+              <div className="flex items-center space-x-2 mt-1">
+                <Checkbox 
+                  id="hha-recert" 
+                  checked={formData.hha}
+                  onCheckedChange={(checked) => setFormData({ ...formData, hha: checked as boolean })}
+                />
+                <Label htmlFor="hha-recert" className="cursor-pointer">Home Health Aide</Label>
+              </div>
+            </div>
+            {formData.hha && (
+              <div>
+                <Label htmlFor="hhaFrequency" className="text-sm font-medium">HHA Frequency</Label>
+                <Input
+                  id="hhaFrequency"
+                  value={formData.hhaFrequency}
+                  onChange={(e) => setFormData({ ...formData, hhaFrequency: e.target.value })}
+                  className="mt-1"
+                  placeholder="e.g., 2w9"
+                />
+              </div>
+            )}
           </div>
 
           <div>

@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signOut: () => Promise<void>;
+  signOut: (redirectTo?: string) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -21,11 +21,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkUser();
-    console.log('[AuthProvider] useEffect triggered');
-  }, []);
 
   const checkUser = async () => {
     try {
@@ -50,16 +45,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleSignOut = async () => {
+  useEffect(() => {
+    checkUser();
+  }, []);
+
+  const handleSignOut = async (redirectTo: string = '/login') => {
     try {
       await signOut({ global: true });
-    } catch (err) {
-      console.error('[AuthProvider] Sign out error:', err);
-      // Ignore authentication errors during signout
-    } finally {
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('currentUser');
+    } 
+     finally {
       setUser(null);
+      
+      // Redirect to login page
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectTo;
+      }
     }
   };
 

@@ -12,22 +12,61 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface RevisitModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSubmit?: (message: string) => void;
 }
 
-export function RevisitModal({ open, onOpenChange }: RevisitModalProps) {
-  const [missedVisitDate, setMissedVisitDate] = useState('09/12/2025');
+export function RevisitModal({ open, onOpenChange, onSubmit }: RevisitModalProps) {
+  const [activeTab, setActiveTab] = useState('re-visit');
+  const [visitDate, setVisitDate] = useState<Date>();
+  const [missedVisitDate, setMissedVisitDate] = useState<Date>();
+  const [nextVisitDate, setNextVisitDate] = useState<Date>();
   const [reason, setReason] = useState('');
-  const [nextVisitDate, setNextVisitDate] = useState('09/12/2025');
   const [timeIn, setTimeIn] = useState('07:00 AM');
   const [timeOut, setTimeOut] = useState('08:00 AM');
+  const [nextTimeIn, setNextTimeIn] = useState('07:00 AM');
+  const [nextTimeOut, setNextTimeOut] = useState('08:00 AM');
   const [notes, setNotes] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const data: any = {
+      type: activeTab === 're-visit' ? 'RE_VISIT' : 'MISSED_VISIT',
+      notes: notes || 'N/A'
+    };
+    
+    if (activeTab === 're-visit') {
+      data.visitDate = visitDate ? format(visitDate, "MM/dd/yyyy") : 'N/A';
+      data.timeIn = timeIn || 'N/A';
+      data.timeOut = timeOut || 'N/A';
+      data.nextVisitDate = nextVisitDate ? format(nextVisitDate, "MM/dd/yyyy") : 'N/A';
+      data.nextTimeIn = nextTimeIn || 'N/A';
+      data.nextTimeOut = nextTimeOut || 'N/A';
+    } else {
+      data.missedVisitDate = missedVisitDate ? format(missedVisitDate, "MM/dd/yyyy") : 'N/A';
+      data.reason = reason || 'N/A';
+      data.nextVisitDate = nextVisitDate ? format(nextVisitDate, "MM/dd/yyyy") : 'N/A';
+      data.nextTimeIn = nextTimeIn || 'N/A';
+      data.nextTimeOut = nextTimeOut || 'N/A';
+    }
+    
+    const templateData = {
+      type: activeTab === 're-visit' ? 'REVISIT_TEMPLATE' : 'MISSEDVISIT_TEMPLATE',
+      data
+    };
+    
+    const message = JSON.stringify(templateData);
+    
+    if (onSubmit) {
+      await onSubmit(message);
+    }
     onOpenChange(false);
   };
 
@@ -39,7 +78,7 @@ export function RevisitModal({ open, onOpenChange }: RevisitModalProps) {
         </DialogHeader>
 
         <div className="space-y-6">
-          <Tabs defaultValue="re-visit" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="re-visit">Re-Visit</TabsTrigger>
               <TabsTrigger value="missed-visit">Missed Visit</TabsTrigger>
@@ -48,12 +87,29 @@ export function RevisitModal({ open, onOpenChange }: RevisitModalProps) {
             <TabsContent value="re-visit" className="space-y-4 mt-6">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="visit-date">Visit Date</Label>
-                  <Input
-                    id="visit-date"
-                    value={missedVisitDate}
-                    onChange={(e) => setMissedVisitDate(e.target.value)}
-                  />
+                  <Label>Visit Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !visitDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {visitDate ? format(visitDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={visitDate}
+                        onSelect={setVisitDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="time-in-1">Time In</Label>
@@ -75,27 +131,44 @@ export function RevisitModal({ open, onOpenChange }: RevisitModalProps) {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="next-visit-date">Next Visit Date</Label>
+                  <Label>Next Visit Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !nextVisitDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {nextVisitDate ? format(nextVisitDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={nextVisitDate}
+                        onSelect={setNextVisitDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="next-time-in">Time In</Label>
                   <Input
-                    id="next-visit-date"
-                    value={nextVisitDate}
-                    onChange={(e) => setNextVisitDate(e.target.value)}
+                    id="next-time-in"
+                    value={nextTimeIn}
+                    onChange={(e) => setNextTimeIn(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="time-in-2">Time In</Label>
+                  <Label htmlFor="next-time-out">Time Out</Label>
                   <Input
-                    id="time-in-2"
-                    value={timeIn}
-                    onChange={(e) => setTimeIn(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="time-out-2">Time Out</Label>
-                  <Input
-                    id="time-out-2"
-                    value={timeOut}
-                    onChange={(e) => setTimeOut(e.target.value)}
+                    id="next-time-out"
+                    value={nextTimeOut}
+                    onChange={(e) => setNextTimeOut(e.target.value)}
                   />
                 </div>
               </div>
@@ -104,12 +177,29 @@ export function RevisitModal({ open, onOpenChange }: RevisitModalProps) {
             <TabsContent value="missed-visit" className="space-y-4 mt-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="missed-visit-date-2">Missed Visit Date</Label>
-                  <Input
-                    id="missed-visit-date-2"
-                    value={missedVisitDate}
-                    onChange={(e) => setMissedVisitDate(e.target.value)}
-                  />
+                  <Label>Missed Visit Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !missedVisitDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {missedVisitDate ? format(missedVisitDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={missedVisitDate}
+                        onSelect={setMissedVisitDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reason-2">Reason</Label>
@@ -123,27 +213,44 @@ export function RevisitModal({ open, onOpenChange }: RevisitModalProps) {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="next-visit-date-2">Next Visit Date</Label>
+                  <Label>Next Visit Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !nextVisitDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {nextVisitDate ? format(nextVisitDate, "MM/dd/yyyy") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={nextVisitDate}
+                        onSelect={setNextVisitDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="next-time-in-2">Time In</Label>
                   <Input
-                    id="next-visit-date-2"
-                    value={nextVisitDate}
-                    onChange={(e) => setNextVisitDate(e.target.value)}
+                    id="next-time-in-2"
+                    value={nextTimeIn}
+                    onChange={(e) => setNextTimeIn(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="time-in-2">Time In</Label>
+                  <Label htmlFor="next-time-out-2">Time Out</Label>
                   <Input
-                    id="time-in-2"
-                    value={timeIn}
-                    onChange={(e) => setTimeIn(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="time-out-2">Time Out</Label>
-                  <Input
-                    id="time-out-2"
-                    value={timeOut}
-                    onChange={(e) => setTimeOut(e.target.value)}
+                    id="next-time-out-2"
+                    value={nextTimeOut}
+                    onChange={(e) => setNextTimeOut(e.target.value)}
                   />
                 </div>
               </div>

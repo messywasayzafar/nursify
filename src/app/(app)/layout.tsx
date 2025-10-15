@@ -47,7 +47,7 @@ export default function AppLayout({
       const newTab: MinimizedTab = {
         id: `${pathname}-${componentId}-${minimizedTabs.length}`,
         title: pageTitle,
-        path: pathname,
+        path: pathname || '/',
       };
       setMinimizedTabs(tabs => [...tabs, newTab]);
     }
@@ -60,7 +60,7 @@ export default function AppLayout({
     <RouteGuard>
       <PageTitleProvider value={{ pageTitle, setPageTitle }}>
         <div className="flex min-h-screen w-full flex-col">
-          <AppHeader onMinimize={minimizePage} onClose={closePage} pathname={pathname} />
+          <AppHeader onMinimize={minimizePage} onClose={closePage} pathname={pathname || '/'} />
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
             {children}
           </main>

@@ -1,20 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TransferTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit?: (message: string) => void;
+  groupId?: string;
 }
 
-export function TransferTemplateModal({ isOpen, onClose }: TransferTemplateModalProps) {
+export function TransferTemplateModal({ isOpen, onClose, onSubmit, groupId }: TransferTemplateModalProps) {
+  const [activeTab, setActiveTab] = useState('transfer');
   const [formData, setFormData] = useState({
     transferDate: '09/12/2025',
     facilityName: '',
@@ -23,14 +27,72 @@ export function TransferTemplateModal({ isOpen, onClose }: TransferTemplateModal
     notes: ''
   });
 
-  const handleSubmit = () => {
-    console.log('Transfer Template Data:', formData);
+  const handleSubmit = async () => {
+    const data: any = {
+      transferDate: formData.transferDate || 'N/A',
+      facilityName: formData.facilityName || 'N/A',
+      reasonOfTransfer: formData.reasonOfTransfer || 'N/A',
+      physicianNotified: formData.physicianNotified || 'N/A',
+      notes: formData.notes || 'N/A'
+    };
+    
+    const templateData = {
+      type: activeTab === 'transfer' ? 'TRANSFER_TEMPLATE' : 'TRANSFERDISCHARGE_TEMPLATE',
+      data,
+      status: activeTab === 'transfer' ? 'Hospitalized' : 'Discharge'
+    };
+    
+    const message = JSON.stringify(templateData);
+    
+    if (onSubmit) {
+      await onSubmit(message);
+    }
+    
+    if (groupId) {
+      try {
+        const { DynamoDBClient, UpdateItemCommand } = await import('@aws-sdk/client-dynamodb');
+        const { fetchAuthSession } = await import('aws-amplify/auth');
+        
+        const session = await fetchAuthSession();
+        const dynamoClient = new DynamoDBClient({
+          region: 'us-east-1',
+          credentials: session.credentials
+        });
+        
+        const statusToSet = activeTab === 'transfer' ? 'Hospitalized' : 'Discharge';
+        
+        await dynamoClient.send(new UpdateItemCommand({
+          TableName: 'PatientGroups',
+          Key: {
+            groupId: { S: groupId }
+          },
+          UpdateExpression: 'SET #status = :status',
+          ExpressionAttributeNames: {
+            '#status': 'status'
+          },
+          ExpressionAttributeValues: {
+            ':status': { S: statusToSet }
+          }
+        }));
+        
+        window.dispatchEvent(new CustomEvent('groupStatusUpdated', {
+          detail: { groupId: groupId, status: statusToSet }
+        }));
+        window.dispatchEvent(new Event('storage'));
+      } catch (error) {
+        console.error('Error updating group status:', error);
+      }
+    }
+    
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] p-0 bg-slate-200">
+      <DialogContent className="max-w-2xl max-h-[80vh] p-0 bg-slate-200" hideClose>
+        <DialogHeader className="sr-only">
+          <DialogTitle>Transfer Template</DialogTitle>
+        </DialogHeader>
         <div className="bg-teal-600 text-white p-4 rounded-t-lg">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Templates</h2>
@@ -47,10 +109,20 @@ export function TransferTemplateModal({ isOpen, onClose }: TransferTemplateModal
 
         <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(80vh-80px)]">
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="text-xs font-semibold bg-gray-300">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className={cn("text-xs font-semibold", activeTab === 'transfer' && "bg-gray-300")}
+              onClick={() => setActiveTab('transfer')}
+            >
               Transfer
             </Button>
-            <Button variant="outline" size="sm" className="text-xs">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className={cn("text-xs", activeTab === 'transferDischarge' && "bg-gray-300")}
+              onClick={() => setActiveTab('transferDischarge')}
+            >
               Transfer Discharge
             </Button>
           </div>

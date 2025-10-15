@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Camera, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/auth/auth-provider';
+import { ChangePasswordForm } from './change-password-form';
 
 const registerSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
@@ -28,6 +29,7 @@ const registerSchema = z.object({
   designation: z.string().min(1, 'Designation is required'),
   department: z.string().min(1, 'Department is required'),
   role: z.string().min(1, 'Role is required'),
+  companyName: z.string().min(1, 'Company name is required'),
 });
 
 const loginSchema = z.object({
@@ -51,6 +53,8 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [countryCode, setCountryCode] = useState('+1');
   const [countrySearch, setCountrySearch] = useState('');
+  const [needsPasswordChange, setNeedsPasswordChange] = useState(false);
+  const [tempPasswordEmail, setTempPasswordEmail] = useState('');
 
   const countries = [
     { code: '+1', name: 'United States', flag: '🇺🇸' },
@@ -297,7 +301,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
           userAttributes: {
             email: data.email,
             name: data.fullName,
-            phone_number: data.phoneNumber,
+            phone_number: countryCode + data.phoneNumber,
             address: data.address,
             picture: pictureUrl,
             'custom:role': data.role,
@@ -305,7 +309,8 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
             'custom:city': data.city,
             'custom:zipCode': data.zipCode,
             'custom:designation': data.designation,
-            'custom:department': data.department
+            'custom:department': data.department,
+            'custom:company_name': data.companyName
           }
         }
       });
@@ -366,8 +371,6 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
         username: data.email.toLowerCase().trim(),
         password: data.password
       });
-
-      console.log('[AuthForm] signIn result:', result);
       if (result.isSignedIn) {
         await refreshUser();
         onSuccess?.();
@@ -375,16 +378,38 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
         setUserEmail(data.email.toLowerCase().trim());
         setNeedsVerification(true);
         setError('Your email is not verified. Please check your email or resend verification code.');
+      } else if (result.nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+        // User needs to change their temporary password
+        setTempPasswordEmail(data.email.toLowerCase().trim());
+        setNeedsPasswordChange(true);
+        setError('');
       } else {
         setError(`Sign in incomplete: ${result.nextStep?.signInStep || 'Unknown step'}`);
-        console.error('[AuthForm] Sign in failed, result:', result);
       }
     } catch (err: any) {
-      console.error('[AuthForm] Login error details:', err);
-      if (err.response) {
-        console.error('[AuthForm] Cognito error response:', err.response);
-      }
       setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async (newPassword: string) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const { confirmSignIn } = await import('aws-amplify/auth');
+      const result = await confirmSignIn({
+        challengeResponse: newPassword
+      });
+      
+      if (result.isSignedIn) {
+        setNeedsPasswordChange(false);
+        await refreshUser();
+        onSuccess?.();
+      } else {
+        setError(`Password change incomplete: ${result.nextStep?.signInStep || 'Unknown step'}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -438,9 +463,6 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
                       
                       setProfileImage(urlResult.url.toString());
                       
-                    } catch (error) {
-                      console.error('Upload error:', error);
-                      setError('Failed to upload image');
                     } finally {
                       setUploadingImage(false);
                     }
@@ -484,8 +506,12 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
                   <Input
                     placeholder="Search country..."
                     value={countrySearch}
-                    onChange={(e) => setCountrySearch(e.target.value)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setCountrySearch(e.target.value);
+                    }}
                     className="h-8"
+                    onKeyDown={(e) => e.stopPropagation()}
                   />
                 </div>
                 {filteredCountries.map((country, index) => (
@@ -503,10 +529,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
               {...registerForm.register('phoneNumber')} 
               placeholder="Enter phone number" 
               className="flex-1 ml-2"
-              onChange={(e) => {
-                const cleanNumber = e.target.value.replace(/^\+\d+\s*/, '');
-                registerForm.setValue('phoneNumber', countryCode + cleanNumber);
-              }}
+              type="tel"
             />
           </div>
           {registerForm.formState.errors.phoneNumber && <p className="text-red-500 text-sm">{registerForm.formState.errors.phoneNumber.message}</p>}
@@ -571,6 +594,12 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
         </div>
 
         <div>
+          <Label>Company Name</Label>
+          <Input {...registerForm.register('companyName')} placeholder="Enter company name" />
+          {registerForm.formState.errors.companyName && <p className="text-red-500 text-sm">{registerForm.formState.errors.companyName.message}</p>}
+        </div>
+
+        <div>
           <Label>Roles</Label>
           <div className="flex gap-2 mt-2">
             <Button 
@@ -603,6 +632,36 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
     );
   }
 
+  // Show password change form if needed
+  if (needsPasswordChange) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Signing in as: <strong>{tempPasswordEmail}</strong>
+          </p>
+        </div>
+        <ChangePasswordForm 
+          onPasswordChanged={handlePasswordChange}
+          loading={loading}
+          error={error}
+        />
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="w-full" 
+          onClick={() => {
+            setNeedsPasswordChange(false);
+            setError('');
+            loginForm.reset();
+          }}
+        >
+          Back to Login
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={loginForm.handleSubmit(onSubmitLogin)} className="space-y-4">
       <div>
@@ -619,11 +678,11 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
       <div>
         <Label htmlFor="password">Password</Label>
         <div className="relative">
-          <Input
-            id="password"
+        <Input
+          id="password"
             type={showPassword ? "text" : "password"}
-            {...loginForm.register('password')}
-            placeholder="Enter your password"
+          {...loginForm.register('password')}
+          placeholder="Enter your password"
             className="pr-10"
           />
           <button

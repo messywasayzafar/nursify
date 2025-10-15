@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::511000088730:role/Cognito_medhexa_main_Auth_Role"
+      },
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::medhexa-groups-media-2024/*",
+        "arn:aws:s3:::medhexa-groups-media-2024"
+      ]
+    }
+  ]
+}

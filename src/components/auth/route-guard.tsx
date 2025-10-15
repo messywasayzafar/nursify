@@ -16,9 +16,9 @@ export function RouteGuard({ children, requireAuth = true }: RouteGuardProps) {
   useEffect(() => {
     if (!loading) {
       if (requireAuth && !user) {
-        router.push('/login');
+        router.replace('/login');
       } else if (!requireAuth && user) {
-        router.push('/dashboard');
+        router.replace('/dashboard');
       }
     }
   }, [user, loading, router, requireAuth]);

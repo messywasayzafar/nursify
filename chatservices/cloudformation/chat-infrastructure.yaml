@@ -1,0 +1,154 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Patient Group Chat Infrastructure'
+
+Resources:
+  PatientGroupsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: PatientGroups
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: groupId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: groupId
+          KeyType: HASH
+
+  GroupMembersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: GroupMembers
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: memberId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: groupId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: memberId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GroupIdIndex
+          KeySchema:
+            - AttributeName: groupId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  MessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ChatMessages
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: messageId
+          AttributeType: S
+        - AttributeName: groupId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: messageId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: GroupIdIndex
+          KeySchema:
+            - AttributeName: groupId
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  ConnectionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: WebSocketConnections
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: connectionId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: groupId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: connectionId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GroupIdIndex
+          KeySchema:
+            - AttributeName: groupId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource:
+                  - !GetAtt PatientGroupsTable.Arn
+                  - !GetAtt GroupMembersTable.Arn
+                  - !GetAtt MessagesTable.Arn
+                  - !GetAtt ConnectionsTable.Arn
+                  - !Sub '${PatientGroupsTable.Arn}/index/*'
+                  - !Sub '${GroupMembersTable.Arn}/index/*'
+                  - !Sub '${MessagesTable.Arn}/index/*'
+                  - !Sub '${ConnectionsTable.Arn}/index/*'
+              - Effect: Allow
+                Action:
+                  - execute-api:ManageConnections
+                Resource: '*'
+
+  ChatWebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: PatientChatWebSocket
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.action
+
+  ChatRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: PatientChatRestApi
+
+Outputs:
+  WebSocketURL:
+    Value: !Sub 'wss://${ChatWebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/production'
+  RestApiURL:
+    Value: !Sub 'https://${ChatRestApi}.execute-api.${AWS::Region}.amazonaws.com/production'

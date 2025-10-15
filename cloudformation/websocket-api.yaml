@@ -1,0 +1,267 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'WebSocket API for Real-time Chat'
+
+Resources:
+  # IAM Role for Lambda Functions
+  WebSocketLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub NursifyWebSocketLambdaRole-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      Policies:
+        - PolicyName: ApiGatewayManagementPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - execute-api:ManageConnections
+                Resource: '*'
+
+  # Lambda Function: Connect
+  ConnectFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: WebSocketConnect
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt WebSocketLambdaRole.Arn
+      Code:
+        ZipFile: |
+          const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+          const { DynamoDBDocumentClient, PutCommand } = require('@aws-sdk/lib-dynamodb');
+          const client = new DynamoDBClient({ region: 'us-east-1' });
+          const docClient = DynamoDBDocumentClient.from(client);
+          exports.handler = async (event) => {
+            const connectionId = event.requestContext.connectionId;
+            const userId = event.queryStringParameters?.userId;
+            const groupId = event.queryStringParameters?.groupId;
+            if (!userId || !groupId) {
+              return { statusCode: 400, body: 'Missing userId or groupId' };
+            }
+            try {
+              await docClient.send(new PutCommand({
+                TableName: 'WebSocketConnections',
+                Item: { connectionId, userId, groupId, connectedAt: new Date().toISOString() }
+              }));
+              return { statusCode: 200, body: 'Connected' };
+            } catch (error) {
+              console.error('Error:', error);
+              return { statusCode: 500, body: 'Failed to connect' };
+            }
+          };
+
+  # Lambda Function: Disconnect
+  DisconnectFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: WebSocketDisconnect
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt WebSocketLambdaRole.Arn
+      Code:
+        ZipFile: |
+          const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+          const { DynamoDBDocumentClient, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+          const client = new DynamoDBClient({ region: 'us-east-1' });
+          const docClient = DynamoDBDocumentClient.from(client);
+          exports.handler = async (event) => {
+            const connectionId = event.requestContext.connectionId;
+            try {
+              await docClient.send(new DeleteCommand({
+                TableName: 'WebSocketConnections',
+                Key: { connectionId }
+              }));
+              return { statusCode: 200, body: 'Disconnected' };
+            } catch (error) {
+              console.error('Error:', error);
+              return { statusCode: 500, body: 'Failed to disconnect' };
+            }
+          };
+
+  # Lambda Function: Send Message
+  SendMessageFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: WebSocketSendMessage
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt WebSocketLambdaRole.Arn
+      Code:
+        ZipFile: |
+          const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+          const { DynamoDBDocumentClient, QueryCommand, PutCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+          const { ApiGatewayManagementApiClient, PostToConnectionCommand } = require('@aws-sdk/client-apigatewaymanagementapi');
+          const dynamoClient = new DynamoDBClient({ region: 'us-east-1' });
+          const docClient = DynamoDBDocumentClient.from(dynamoClient);
+          exports.handler = async (event) => {
+            const domain = event.requestContext.domainName;
+            const stage = event.requestContext.stage;
+            const body = JSON.parse(event.body);
+            const { groupId, senderId, senderName, message } = body;
+            if (!groupId || !senderId || !message) {
+              return { statusCode: 400, body: 'Missing required fields' };
+            }
+            const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const timestamp = new Date().toISOString();
+            try {
+              await docClient.send(new PutCommand({
+                TableName: 'ChatMessages',
+                Item: { messageId, groupId, senderId, senderName, message, timestamp }
+              }));
+              const connections = await docClient.send(new QueryCommand({
+                TableName: 'WebSocketConnections',
+                IndexName: 'GroupIdIndex',
+                KeyConditionExpression: 'groupId = :groupId',
+                ExpressionAttributeValues: { ':groupId': groupId }
+              }));
+              const apiGateway = new ApiGatewayManagementApiClient({
+                endpoint: `https://${domain}/${stage}`,
+                region: 'us-east-1'
+              });
+              const messageData = JSON.stringify({
+                action: 'message',
+                messageId,
+                groupId,
+                senderId,
+                senderName,
+                message,
+                timestamp
+              });
+              const sendPromises = (connections.Items || []).map(async (connection) => {
+                try {
+                  await apiGateway.send(new PostToConnectionCommand({
+                    ConnectionId: connection.connectionId,
+                    Data: messageData
+                  }));
+                } catch (error) {
+                  if (error.statusCode === 410) {
+                    await docClient.send(new DeleteCommand({
+                      TableName: 'WebSocketConnections',
+                      Key: { connectionId: connection.connectionId }
+                    }));
+                  }
+                }
+              });
+              await Promise.all(sendPromises);
+              return { statusCode: 200, body: 'Message sent' };
+            } catch (error) {
+              console.error('Error:', error);
+              return { statusCode: 500, body: 'Failed to send message' };
+            }
+          };
+
+  # WebSocket API
+  WebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: ChatWebSocketAPI
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.action
+
+  # Connect Integration
+  ConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
+
+  # Disconnect Integration
+  DisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DisconnectFunction.Arn}/invocations
+
+  # SendMessage Integration
+  SendMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
+
+  # Connect Route
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: $connect
+      Target: !Sub integrations/${ConnectIntegration}
+
+  # Disconnect Route
+  DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: $disconnect
+      Target: !Sub integrations/${DisconnectIntegration}
+
+  # SendMessage Route
+  SendMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: sendMessage
+      Target: !Sub integrations/${SendMessageIntegration}
+
+  # Deployment
+  WebSocketDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - ConnectRoute
+      - DisconnectRoute
+      - SendMessageRoute
+    Properties:
+      ApiId: !Ref WebSocketApi
+
+  # Stage
+  WebSocketStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref WebSocketApi
+      DeploymentId: !Ref WebSocketDeployment
+      StageName: production
+
+  # Lambda Permissions
+  ConnectPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ConnectFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/$connect
+
+  DisconnectPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DisconnectFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/$disconnect
+
+  SendMessagePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SendMessageFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/sendMessage
+
+Outputs:
+  WebSocketURL:
+    Description: WebSocket API URL
+    Value: !Sub wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/production
+    Export:
+      Name: WebSocketURL

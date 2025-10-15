@@ -17,17 +17,72 @@ import { X } from 'lucide-react';
 interface DischargeOasisModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSubmit?: (message: string) => void;
+  groupId?: string;
 }
 
-export function DischargeOasisModal({ open, onOpenChange }: DischargeOasisModalProps) {
+export function DischargeOasisModal({ open, onOpenChange, onSubmit, groupId }: DischargeOasisModalProps) {
   const [dischargeDate, setDischargeDate] = useState('09/12/2025');
   const [dischargeEducation, setDischargeEducation] = useState('');
   const [reasonOfDischarge, setReasonOfDischarge] = useState('');
   const [nonVisitDischarge, setNonVisitDischarge] = useState('');
   const [notes, setNotes] = useState('');
 
-  const handleSubmit = () => {
-    // Handle form submission
+  const handleSubmit = async () => {
+    const data: any = {
+      dischargeDate: dischargeDate || 'N/A',
+      dischargeEducationTo: dischargeEducation || 'N/A',
+      reasonOfDischarge: reasonOfDischarge || 'N/A',
+      nonVisitDischarge: nonVisitDischarge || 'N/A',
+      notes: notes || 'N/A'
+    };
+    
+    const templateData = {
+      type: 'DISCHARGE_TEMPLATE',
+      data,
+      status: 'Discharge'
+    };
+    
+    const message = JSON.stringify(templateData);
+    
+    if (onSubmit) {
+      await onSubmit(message);
+    }
+    
+    if (groupId) {
+      try {
+        const { DynamoDBClient, UpdateItemCommand } = await import('@aws-sdk/client-dynamodb');
+        const { fetchAuthSession } = await import('aws-amplify/auth');
+        
+        const session = await fetchAuthSession();
+        const dynamoClient = new DynamoDBClient({
+          region: 'us-east-1',
+          credentials: session.credentials
+        });
+        
+        await dynamoClient.send(new UpdateItemCommand({
+          TableName: 'PatientGroups',
+          Key: {
+            groupId: { S: groupId }
+          },
+          UpdateExpression: 'SET #status = :status',
+          ExpressionAttributeNames: {
+            '#status': 'status'
+          },
+          ExpressionAttributeValues: {
+            ':status': { S: 'Discharge' }
+          }
+        }));
+        
+        window.dispatchEvent(new CustomEvent('groupStatusUpdated', {
+          detail: { groupId: groupId, status: 'Discharge' }
+        }));
+        window.dispatchEvent(new Event('storage'));
+      } catch (error) {
+        console.error('Error updating group status:', error);
+      }
+    }
+    
     onOpenChange(false);
   };
 
@@ -39,8 +94,8 @@ export function DischargeOasisModal({ open, onOpenChange }: DischargeOasisModalP
         </DialogHeader>
 
         <div className="space-y-6">
-          <div className="bg-muted p-2 rounded">
-            <span className="text-sm font-medium">Discharge</span>
+          <div>
+           Discharge
           </div>
 
           <div className="grid grid-cols-2 gap-4">

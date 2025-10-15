@@ -35,6 +35,23 @@ export interface Chat {
     timestamp: string;
     avatar: string;
     unreadCount?: number;
+    isGroup?: boolean;
+    members?: any[];
+    createdBy?: string;
+    createdAt?: string;
+    // Patient data fields
+    dateOfBirth?: string;
+    contactNumber?: string;
+    homeAddress?: string;
+    primaryPhysicianName?: string;
+    insurance?: string;
+    socProvider?: string;
+    patientTag?: string;
+    emergencyPersonName?: string;
+    emergencyContact?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
 }
 
 export interface Message {
@@ -43,6 +60,7 @@ export interface Message {
     content: string;
     timestamp: string;
     isPatient?: boolean;
+    fileUrl?: string;
 }
 
 export interface Notification {
