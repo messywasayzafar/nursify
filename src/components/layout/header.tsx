@@ -50,6 +50,7 @@ import { ResetPasswordModal } from '../profile/reset-password-modal';
 import { cn } from '@/lib/utils';
 import { NewPatientGroupModal } from '../chat/new-patient-group-modal';
 import { BroadcastModal } from '../chat/broadcast-modal';
+import { NewInternalGroupModal } from '../chat/new-internal-group-modal';
 
 const navItems = [
     { href: '/chat', label: 'Chats' },
@@ -143,6 +144,7 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = React.useState(false);
   const [isNewPatientGroupModalOpen, setIsNewPatientGroupModalOpen] = React.useState(false);
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = React.useState(false);
+  const [isNewInternalGroupModalOpen, setIsNewInternalGroupModalOpen] = React.useState(false);
 
   const handleLogout = async () => {
     await signOut('/login');
@@ -270,7 +272,7 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 <DropdownMenuItem onClick={() => setIsNewPatientGroupModalOpen(true)}>New Patient Groups</DropdownMenuItem>
-                <DropdownMenuItem>New Internal Group</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsNewInternalGroupModalOpen(true)}>New Internal Group</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsBroadcastModalOpen(true)}>New Broadcast</DropdownMenuItem>
                 <DropdownMenuItem>Organizational Media</DropdownMenuItem>
               </DropdownMenuContent>
@@ -281,6 +283,9 @@ export function AppHeader({ onMinimize, onClose, pathname }: AppHeaderProps) {
           </Dialog>
           <Dialog open={isBroadcastModalOpen} onOpenChange={setIsBroadcastModalOpen}>
             <BroadcastModal setOpen={setIsBroadcastModalOpen} />
+          </Dialog>
+          <Dialog open={isNewInternalGroupModalOpen} onOpenChange={setIsNewInternalGroupModalOpen}>
+            <NewInternalGroupModal setOpen={setIsNewInternalGroupModalOpen} />
           </Dialog>
         </div>
         <div className="flex flex-1 justify-center">

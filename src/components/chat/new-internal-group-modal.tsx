@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   DialogContent,
   DialogHeader,
@@ -9,19 +10,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface BroadcastModalProps {
+interface NewInternalGroupModalProps {
   setOpen: (open: boolean) => void;
 }
 
-export function BroadcastModal({ setOpen }: BroadcastModalProps) {
-  const [broadcastName, setBroadcastName] = useState('');
+export function NewInternalGroupModal({ setOpen }: NewInternalGroupModalProps) {
+  const [groupName, setGroupName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -41,7 +41,13 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
       const currentUser = await getCurrentUser();
       const currentUserId = currentUser.username;
       
-      const companyName = attributes['custom:company_name'] || '';
+      const companyName = attributes['custom:company_name'] || 
+                         attributes['custom:company'] || 
+                         attributes['custom:organization'] || 
+                         attributes['custom:agency'] || '';
+      
+      console.log('Filtering users by company:', companyName);
+      console.log('Current user ID:', currentUserId);
       
       const { fetchAuthSession } = await import('aws-amplify/auth');
       const session = await fetchAuthSession();
@@ -57,13 +63,16 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
       }));
       
       const cognitoUsers = result.Users || [];
+      console.log('Total Cognito users:', cognitoUsers.length);
       
       const filteredUsers = cognitoUsers
         .filter(user => {
           const getAttr = (name: string) => user.Attributes?.find(attr => attr.Name === name)?.Value || '';
           const userCompany = getAttr('custom:company_name');
           const isCurrentUser = user.Username === currentUserId;
-          return userCompany === companyName && !isCurrentUser;
+          const match = userCompany === companyName && !isCurrentUser;
+          if (match) console.log('Matched user:', getAttr('name'), 'company:', userCompany);
+          return match;
         })
         .map(user => {
           const getAttr = (name: string) => user.Attributes?.find(attr => attr.Name === name)?.Value || '';
@@ -76,6 +85,7 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
           };
         });
       
+      console.log('Filtered users:', filteredUsers.length);
       setUsers(filteredUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -98,10 +108,10 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
   };
 
   const handleSubmit = async () => {
-    if (!broadcastName.trim()) {
+    if (!groupName.trim()) {
       toast({
         title: 'Error',
-        description: 'Please enter a broadcast name',
+        description: 'Please enter a group name',
         variant: 'destructive',
       });
       return;
@@ -122,6 +132,7 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
       const cognitoUser = await getCurrentUser();
       const userId = cognitoUser.username;
 
+      // Create internal group in DynamoDB InternalGroups table
       const { DynamoDBClient, PutItemCommand } = await import('@aws-sdk/client-dynamodb');
       const { fetchAuthSession } = await import('aws-amplify/auth');
       
@@ -131,31 +142,32 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
         credentials: session.credentials
       });
 
-      const broadcastId = `broadcast_${Date.now()}`;
+      const groupId = `internal_${Date.now()}`;
+      const allMembers = [...selectedUsers, userId];
       
       await dynamoClient.send(new PutItemCommand({
-        TableName: 'BroadcastLists',
+        TableName: 'InternalGroups',
         Item: {
-          broadcastId: { S: broadcastId },
-          broadcastName: { S: broadcastName },
+          groupId: { S: groupId },
+          groupName: { S: groupName },
           createdBy: { S: userId },
           createdAt: { S: new Date().toISOString() },
-          members: { SS: selectedUsers }
+          members: { SS: allMembers }
         }
       }));
 
       toast({
         title: 'Success',
-        description: 'Broadcast list created successfully',
+        description: 'Internal group created successfully',
       });
 
       setOpen(false);
-      window.dispatchEvent(new CustomEvent('broadcastCreated', { detail: { broadcastId } }));
+      window.dispatchEvent(new CustomEvent('internalGroupCreated', { detail: { groupId } }));
     } catch (error) {
-      console.error('Error creating broadcast:', error);
+      console.error('Error creating internal group:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create broadcast list',
+        description: 'Failed to create internal group',
         variant: 'destructive',
       });
     } finally {
@@ -171,18 +183,18 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
 
   return (
     <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
-      <DialogHeader className="bg-primary text-primary-foreground p-4">
-        <DialogTitle className="text-center text-xl">New Broadcast List</DialogTitle>
+      <DialogHeader className="bg-primary text-primary-foreground p-4 flex-shrink-0">
+        <DialogTitle className="text-center text-xl">New Internal Group</DialogTitle>
       </DialogHeader>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="grid gap-2">
-          <Label htmlFor="broadcast-name">Broadcast Name*</Label>
+          <Label htmlFor="group-name">Group Name*</Label>
           <Input
-            id="broadcast-name"
-            placeholder="Enter broadcast name"
-            value={broadcastName}
-            onChange={(e) => setBroadcastName(e.target.value)}
+            id="group-name"
+            placeholder="Enter group name"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
           />
         </div>
 
@@ -242,7 +254,7 @@ export function BroadcastModal({ setOpen }: BroadcastModalProps) {
           Cancel
         </Button>
         <Button onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? 'Creating...' : 'Create Broadcast'}
+          {isSubmitting ? 'Creating...' : 'Create Group'}
         </Button>
       </DialogFooter>
     </DialogContent>

@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -209,18 +210,45 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
         if (result.success && result.members) {
           const creatorId = patientData.createdBy;
           
-          const allMembers = result.members.map((member: any) => ({
-            ...member,
-            isCreator: member.userId === creatorId,
-            role: member.userId === creatorId ? 'Admin' : (member.role || 'Member'),
-            department: member.userId === creatorId ? 'Administrator' : (member.department || 'Staff'),
-            status: 'accepted',
-            invitationStatus: 'accepted',
-            avatar: member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`,
-            email: member.email || '',
-            phone: member.phone || '',
-            lastActive: member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : 'Unknown'
-          }));
+          // Verify each member exists in Cognito
+          const { fetchAuthSession } = await import('aws-amplify/auth');
+          const { CognitoIdentityProviderClient, AdminGetUserCommand } = await import('@aws-sdk/client-cognito-identity-provider');
+          
+          const session = await fetchAuthSession();
+          const cognitoClient = new CognitoIdentityProviderClient({
+            region: 'us-east-1',
+            credentials: session.credentials
+          });
+          
+          const validMembers = await Promise.all(
+            result.members.map(async (member: any) => {
+              try {
+                await cognitoClient.send(new AdminGetUserCommand({
+                  UserPoolId: 'us-east-1_8C0HCUlTs',
+                  Username: member.userId
+                }));
+                return member;
+              } catch (error) {
+                console.log(`User ${member.userId} not found in Cognito, removing from members`);
+                return null;
+              }
+            })
+          );
+          
+          const allMembers = validMembers
+            .filter(member => member !== null)
+            .map((member: any) => ({
+              ...member,
+              isCreator: member.userId === creatorId,
+              role: member.userId === creatorId ? 'Admin' : (member.role || 'Member'),
+              department: member.userId === creatorId ? 'Administrator' : (member.department || 'Staff'),
+              status: 'accepted',
+              invitationStatus: 'accepted',
+              avatar: member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`,
+              email: member.email || '',
+              phone: member.phone || '',
+              lastActive: member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : 'Unknown'
+            }));
           
           setMembers(allMembers);
         }
@@ -359,12 +387,64 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
     
     setLoading(true);
     try {
-      setIsEditing(false);
-      window.dispatchEvent(new CustomEvent('patientDataUpdated', {
-        detail: { patientId: patientData.id, patientData }
+      const { DynamoDBClient, UpdateItemCommand } = await import('@aws-sdk/client-dynamodb');
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      
+      const session = await fetchAuthSession();
+      const dynamoClient = new DynamoDBClient({
+        region: 'us-east-1',
+        credentials: session.credentials
+      });
+      
+      const groupId = patientData.groupId || patientData.id;
+      
+      await dynamoClient.send(new UpdateItemCommand({
+        TableName: 'PatientGroups',
+        Key: {
+          groupId: { S: groupId }
+        },
+        UpdateExpression: 'SET fullName = :fullName, dateOfBirth = :dob, insurance = :insurance, contactNumber = :contact, homeAddress = :address, city = :city, #state = :state, zipCode = :zip, primaryPhysicianName = :physician, physicianContact = :physicianContact, lastFaceToFaceDate = :f2f, hhOrderDate = :hhOrder, socProvider = :socProvider, referralSource = :referral, patientTag = :tag, emergencyPersonName = :emergencyName, emergencyContact = :emergencyContact',
+        ExpressionAttributeNames: {
+          '#state': 'state'
+        },
+        ExpressionAttributeValues: {
+          ':fullName': { S: patientData.fullName || patientData.name || '' },
+          ':dob': { S: patientData.dateOfBirth || '' },
+          ':insurance': { S: patientData.insurance || '' },
+          ':contact': { S: patientData.contactNumber || '' },
+          ':address': { S: patientData.homeAddress || '' },
+          ':city': { S: patientData.city || '' },
+          ':state': { S: patientData.state || '' },
+          ':zip': { S: patientData.zipCode || '' },
+          ':physician': { S: patientData.primaryPhysicianName || '' },
+          ':physicianContact': { S: patientData.physicianContact || '' },
+          ':f2f': { S: patientData.lastFaceToFaceDate || '' },
+          ':hhOrder': { S: patientData.hhOrderDate || '' },
+          ':socProvider': { S: patientData.socProvider || '' },
+          ':referral': { S: patientData.referralSource || '' },
+          ':tag': { S: patientData.patientTag || '' },
+          ':emergencyName': { S: patientData.emergencyPersonName || '' },
+          ':emergencyContact': { S: patientData.emergencyContact || '' }
+        }
       }));
+      
+      setIsEditing(false);
+      
+      window.dispatchEvent(new CustomEvent('patientDataUpdated', {
+        detail: { patientId: groupId, patientData }
+      }));
+      
+      toast({
+        title: "Success",
+        description: "Patient information updated successfully",
+      });
     } catch (error) {
-      alert('Failed to update patient data. Please try again.');
+      console.error('Error updating patient:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update patient data. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -443,20 +523,17 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                       {patientData?.name || patientData?.fullName || 'Unknown'}
                     </SheetTitle>
                     <div className="flex items-center gap-2 flex-wrap">
-                        <div className="flex items-center gap-1">
-                          {isPatientGroupData(patientData) && patientData.socProvider && (
-                            <Badge variant="outline" className="text-xs px-2 py-0.5">
-                              {patientData.socProvider.toUpperCase()}
-                            </Badge>
-                          )}
-                          {isPatientGroupData(patientData) && patientData.patientTag && (
-                            <Badge variant="outline" className="text-xs px-2 py-0.5">
-                              {patientData.patientTag}
-                            </Badge>
-                          )}
-                        </div>
-                        <Badge variant="destructive" className="text-xs px-2 py-1 font-semibold">
-                            {isPatientGroupData(patientData) ? 'ACTIVE' : 'GROUP'}
+                        <Badge 
+                          variant="destructive" 
+                          className={`text-xs px-2 py-1 font-semibold ${
+                            patientData?.status === 'Active' ? 'bg-green-600 hover:bg-green-700' :
+                            patientData?.status === 'Pending' ? 'bg-red-500 hover:bg-red-600' :
+                            patientData?.status === 'Hospitalized' ? 'bg-orange-500 hover:bg-orange-600' :
+                            patientData?.status === 'Discharge' ? 'bg-gray-500 hover:bg-gray-600' :
+                            'bg-red-500 hover:bg-red-600'
+                          }`}
+                        >
+                            {patientData?.status || 'Pending'}
                         </Badge>
                     </div>
                 </div>
@@ -516,7 +593,78 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                         <div className="space-y-4">
                             <h3 className="text-sm font-medium text-muted-foreground">Patient Details</h3>
                             <div className="space-y-3">
-                                {patientDetails.map((detail, index) => (
+                                {isEditing ? (
+                                  <>
+                                    <div className="grid gap-2">
+                                      <Label>Date of Birth</Label>
+                                      <Input 
+                                        type="date" 
+                                        value={patientData.dateOfBirth || ''}
+                                        onChange={(e) => setPatientData({...patientData, dateOfBirth: e.target.value})}
+                                      />
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label>Phone</Label>
+                                      <Input 
+                                        value={patientData.contactNumber || ''}
+                                        onChange={(e) => setPatientData({...patientData, contactNumber: e.target.value})}
+                                      />
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label>Address</Label>
+                                      <Input 
+                                        value={patientData.homeAddress || ''}
+                                        onChange={(e) => setPatientData({...patientData, homeAddress: e.target.value})}
+                                      />
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label>HH Order Date</Label>
+                                      <Input 
+                                        type="date" 
+                                        value={patientData.hhOrderDate || ''}
+                                        onChange={(e) => setPatientData({...patientData, hhOrderDate: e.target.value})}
+                                      />
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label>Insurance</Label>
+                                      <Input 
+                                        value={patientData.insurance || ''}
+                                        onChange={(e) => setPatientData({...patientData, insurance: e.target.value})}
+                                      />
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label>Physician</Label>
+                                      <Input 
+                                        value={patientData.primaryPhysicianName || ''}
+                                        onChange={(e) => setPatientData({...patientData, primaryPhysicianName: e.target.value})}
+                                      />
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label>SOC Provider</Label>
+                                      <Select 
+                                        value={patientData.socProvider || 'sn'}
+                                        onValueChange={(value) => setPatientData({...patientData, socProvider: value})}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="sn">SN</SelectItem>
+                                          <SelectItem value="pt">PT</SelectItem>
+                                          <SelectItem value="ot">OT</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label>Patient Tag</Label>
+                                      <Input 
+                                        value={patientData.patientTag || ''}
+                                        onChange={(e) => setPatientData({...patientData, patientTag: e.target.value})}
+                                      />
+                                    </div>
+                                  </>
+                                ) : (
+                                  patientDetails.map((detail, index) => (
                                     <div key={index} className="flex items-start gap-3 text-sm">
                                         <div className="p-2 bg-primary/10 rounded-full text-primary mt-1">
                                             <detail.icon className="h-5 w-5" />
@@ -525,21 +673,29 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                                             <p className="font-medium">{detail.value}</p>
                                         </div>
                                     </div>
-                                ))}
+                                  ))
+                                )}
                             </div>
                         </div>
 
                         {/* Referral Information */}
                         <div className="space-y-4">
                             <h3 className="text-sm font-medium text-muted-foreground">Referral Information</h3>
-                            <div>
-                                <h4 className="font-semibold text-sm mb-1">Referral Source</h4>
-                                <p className="text-sm">*Four Chaplains Nursing Care Centre - Email - Jae'la Nelson P: (734) 261-9500 ext. 112</p>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-sm mb-1">Community Liaison</h4>
-                                <p className="text-sm">Zammad Khan</p>
-                            </div>
+                            {isEditing ? (
+                              <div className="grid gap-2">
+                                <Label>Referral Source</Label>
+                                <Input 
+                                  value={patientData?.referralSource || ''}
+                                  onChange={(e) => setPatientData({...patientData, referralSource: e.target.value})}
+                                  placeholder="Enter referral source"
+                                />
+                              </div>
+                            ) : (
+                              <div>
+                                  <h4 className="font-semibold text-sm mb-1">Referral Source</h4>
+                                  <p className="text-sm">{patientData?.referralSource || 'N/A'}</p>
+                              </div>
+                            )}
                         </div>
 
                         {/* Media */}
@@ -605,10 +761,6 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
 
                          {/* Actions */}
                         <div className="space-y-3 border-t pt-4">
-                             <Button variant="ghost" className="w-full justify-start gap-3 text-sm">
-                                <PlusCircle className="h-5 w-5 text-primary" />
-                                <span>Start New Episode</span>
-                            </Button>
                              <Button variant="ghost" className="w-full justify-start gap-3 text-sm">
                                 <Download className="h-5 w-5 text-primary" />
                                 <span>Export Chat</span>
@@ -732,21 +884,6 @@ export function EditPatientSheet({ patient, setOpen }: EditPatientSheetProps) {
                 <TabsContent value="settings" className="m-0">
                   <div className="p-4 space-y-6">
                     <div className="space-y-4">
-                      <h3 className="text-sm font-medium text-muted-foreground">Group Settings</h3>
-                      
-                      <Button variant="ghost" className="w-full justify-start gap-3 text-sm">
-                        <Settings className="h-5 w-5 text-primary" />
-                        <span>Notification Settings</span>
-                      </Button>
-                      
-                      <Button variant="ghost" className="w-full justify-start gap-3 text-sm">
-                        <Download className="h-5 w-5 text-primary" />
-                        <span>Export Chat History</span>
-                      </Button>
-                    </div>
-
-          
-                    <div className="space-y-4 border-t pt-4">
                       {patientData?.createdBy === currentUserId && (
                         <>
                           <Button 

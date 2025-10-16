@@ -76,6 +76,10 @@ function ChatTypeDropdown({ onFilterChange }: { onFilterChange: (filter: string 
 
 export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
     const [patientGroups, setPatientGroups] = useState<any[]>([]);
+    const [internalGroups, setInternalGroups] = useState<any[]>([]);
+    const [broadcastLists, setBroadcastLists] = useState<any[]>([]);
+    const [individualChats, setIndividualChats] = useState<any[]>([]);
+    const [contacts, setContacts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -136,9 +140,221 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
             }
         };
 
+    // Fetch internal groups function
+    const fetchInternalGroups = async () => {
+        try {
+            setLoading(true);
+            const { fetchAuthSession, getCurrentUser } = await import('aws-amplify/auth');
+            const session = await fetchAuthSession();
+            const currentUser = await getCurrentUser();
+            const userId = currentUser.username;
+            
+            const { DynamoDBClient, ScanCommand } = await import('@aws-sdk/client-dynamodb');
+            const client = new DynamoDBClient({
+                region: 'us-east-1',
+                credentials: session.credentials
+            });
+            
+            const result = await client.send(new ScanCommand({
+                TableName: 'InternalGroups'
+            }));
+            
+            const groups = (result.Items || []).filter(item => {
+                const members = item.members?.SS || [];
+                return members.includes(userId);
+            }).map(item => ({
+                groupId: item.groupId?.S || '',
+                groupName: item.groupName?.S || '',
+                createdBy: item.createdBy?.S || '',
+                createdAt: item.createdAt?.S || '',
+                members: item.members?.SS || []
+            }));
+            
+            setInternalGroups(groups);
+        } catch (error) {
+            console.error('Error fetching internal groups:', error);
+            setInternalGroups([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch broadcast lists function
+    const fetchBroadcastLists = async () => {
+        try {
+            setLoading(true);
+            const { fetchAuthSession, getCurrentUser } = await import('aws-amplify/auth');
+            const session = await fetchAuthSession();
+            const currentUser = await getCurrentUser();
+            const userId = currentUser.username;
+            
+            const { DynamoDBClient, ScanCommand } = await import('@aws-sdk/client-dynamodb');
+            const client = new DynamoDBClient({
+                region: 'us-east-1',
+                credentials: session.credentials
+            });
+            
+            const result = await client.send(new ScanCommand({
+                TableName: 'BroadcastLists'
+            }));
+            
+            const broadcasts = (result.Items || [])
+                .filter(item => item.createdBy?.S === userId)
+                .map(item => ({
+                    broadcastId: item.broadcastId?.S || '',
+                    broadcastName: item.broadcastName?.S || '',
+                    createdBy: item.createdBy?.S || '',
+                    createdAt: item.createdAt?.S || '',
+                    members: item.members?.SS || []
+                }));
+            
+            setBroadcastLists(broadcasts);
+        } catch (error) {
+            console.error('Error fetching broadcast lists:', error);
+            setBroadcastLists([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch individual chats function
+    const fetchIndividualChats = async () => {
+        try {
+            setLoading(true);
+            const { fetchAuthSession, getCurrentUser } = await import('aws-amplify/auth');
+            const session = await fetchAuthSession();
+            const currentUser = await getCurrentUser();
+            const userId = currentUser.username;
+            
+            const { DynamoDBClient, ScanCommand } = await import('@aws-sdk/client-dynamodb');
+            const client = new DynamoDBClient({
+                region: 'us-east-1',
+                credentials: session.credentials
+            });
+            
+            const result = await client.send(new ScanCommand({
+                TableName: 'Messages'
+            }));
+            
+            const conversations = new Map();
+            
+            (result.Items || []).forEach(item => {
+                const senderId = item.senderId?.S || '';
+                const receiverId = item.receiverId?.S || '';
+                const senderName = item.senderName?.S || '';
+                const content = item.content?.S || '';
+                const timestamp = item.timestamp?.S || '';
+                
+                if (senderId === userId || receiverId === userId) {
+                    const otherUserId = senderId === userId ? receiverId : senderId;
+                    const conversationId = [userId, otherUserId].sort().join('_');
+                    
+                    if (!conversations.has(conversationId) || new Date(timestamp) > new Date(conversations.get(conversationId).timestamp)) {
+                        conversations.set(conversationId, {
+                            userId: otherUserId,
+                            userName: senderName,
+                            lastMessage: content,
+                            timestamp: timestamp
+                        });
+                    }
+                }
+            });
+            
+            // Fetch user names from Cognito
+            const { CognitoIdentityProviderClient, AdminGetUserCommand } = await import('@aws-sdk/client-cognito-identity-provider');
+            const cognitoClient = new CognitoIdentityProviderClient({
+                region: 'us-east-1',
+                credentials: session.credentials
+            });
+            
+            const chatsWithNames = await Promise.all(
+                Array.from(conversations.values()).map(async (chat) => {
+                    try {
+                        const userResult = await cognitoClient.send(new AdminGetUserCommand({
+                            UserPoolId: 'us-east-1_8C0HCUlTs',
+                            Username: chat.userId
+                        }));
+                        
+                        const getAttr = (name: string) => userResult.UserAttributes?.find(attr => attr.Name === name)?.Value || '';
+                        return {
+                            ...chat,
+                            userName: getAttr('name') || chat.userName || 'Unknown User'
+                        };
+                    } catch {
+                        return chat;
+                    }
+                })
+            );
+            
+            setIndividualChats(chatsWithNames);
+        } catch (error) {
+            console.error('Error fetching individual chats:', error);
+            setIndividualChats([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch contacts function
+    const fetchContacts = async () => {
+        try {
+            setLoading(true);
+            const { fetchUserAttributes, getCurrentUser } = await import('aws-amplify/auth');
+            const attributes = await fetchUserAttributes();
+            const currentUser = await getCurrentUser();
+            const currentUserId = currentUser.username;
+            
+            const companyName = attributes['custom:company_name'] || '';
+            
+            const { fetchAuthSession } = await import('aws-amplify/auth');
+            const session = await fetchAuthSession();
+            
+            const { CognitoIdentityProviderClient, ListUsersCommand } = await import('@aws-sdk/client-cognito-identity-provider');
+            const client = new CognitoIdentityProviderClient({
+                region: 'us-east-1',
+                credentials: session.credentials,
+            });
+            
+            const result = await client.send(new ListUsersCommand({
+                UserPoolId: 'us-east-1_8C0HCUlTs',
+            }));
+            
+            const cognitoUsers = result.Users || [];
+            
+            const filteredUsers = cognitoUsers
+                .filter(user => {
+                    const getAttr = (name: string) => user.Attributes?.find(attr => attr.Name === name)?.Value || '';
+                    const userCompany = getAttr('custom:company_name');
+                    const isCurrentUser = user.Username === currentUserId;
+                    return userCompany === companyName && !isCurrentUser;
+                })
+                .map(user => {
+                    const getAttr = (name: string) => user.Attributes?.find(attr => attr.Name === name)?.Value || '';
+                    return {
+                        id: user.Username || '',
+                        name: getAttr('name'),
+                        email: getAttr('email'),
+                        designation: getAttr('custom:designation'),
+                        avatar: getAttr('picture'),
+                    };
+                });
+            
+            setContacts(filteredUsers);
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+            setContacts([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Fetch patient groups on component mount
     useEffect(() => {
         fetchPatientGroups();
+        fetchInternalGroups();
+        fetchBroadcastLists();
+        fetchIndividualChats();
+        fetchContacts();
     }, []);
 
     // Listen for patient group creation and storage changes
@@ -146,6 +362,21 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
         const handlePatientGroupCreated = (event) => {
             console.log('📢 Simple Chat List: Received patientGroupCreated event:', event.detail);
             setTimeout(() => fetchPatientGroups(), 1000);
+        };
+
+        const handleInternalGroupCreated = (event) => {
+            console.log('📢 Simple Chat List: Received internalGroupCreated event:', event.detail);
+            setTimeout(() => fetchInternalGroups(), 1000);
+        };
+
+        const handleBroadcastCreated = (event) => {
+            console.log('📢 Simple Chat List: Received broadcastCreated event:', event.detail);
+            setTimeout(() => fetchBroadcastLists(), 1000);
+        };
+
+        const handleIndividualMessageReceived = (event) => {
+            console.log('📢 Simple Chat List: Received individual message:', event.detail);
+            setTimeout(() => fetchIndividualChats(), 500);
         };
 
         const handlePatientGroupDeleted = (event) => {
@@ -170,6 +401,9 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
 
         window.addEventListener('patientGroupCreated', handlePatientGroupCreated);
         window.addEventListener('patientGroupDeleted', handlePatientGroupDeleted);
+        window.addEventListener('internalGroupCreated', handleInternalGroupCreated);
+        window.addEventListener('broadcastCreated', handleBroadcastCreated);
+        window.addEventListener('individualMessageReceived', handleIndividualMessageReceived);
         window.addEventListener('storage', handleStorageChange);
         window.addEventListener('memberAdded', handleMemberAdded);
         window.addEventListener('memberRemoved', handleMemberRemoved);
@@ -177,6 +411,9 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
         return () => {
             window.removeEventListener('patientGroupCreated', handlePatientGroupCreated);
             window.removeEventListener('patientGroupDeleted', handlePatientGroupDeleted);
+            window.removeEventListener('internalGroupCreated', handleInternalGroupCreated);
+            window.removeEventListener('broadcastCreated', handleBroadcastCreated);
+            window.removeEventListener('individualMessageReceived', handleIndividualMessageReceived);
             window.removeEventListener('storage', handleStorageChange);
             window.removeEventListener('memberAdded', handleMemberAdded);
             window.removeEventListener('memberRemoved', handleMemberRemoved);
@@ -237,14 +474,25 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
     
 
     
-    // Convert patient groups to chat format
-    console.log('🔄 Simple Chat List: Converting patient groups to chat format...');
-    console.log('🔄 Simple Chat List: Patient groups to convert:', patientGroups?.length || 0);
-    console.log('🔄 Simple Chat List: Patient groups data:', patientGroups);
-    
-    // Safety check: ensure patientGroups is an array and deduplicate by id/groupId
+    // Convert groups to chat format based on active tab
     const safePatientGroups = Array.isArray(patientGroups) 
         ? Array.from(new Map(patientGroups.map(g => [g.groupId || g.id, g])).values())
+        : [];
+    
+    const safeInternalGroups = Array.isArray(internalGroups)
+        ? Array.from(new Map(internalGroups.map(g => [g.groupId, g])).values())
+        : [];
+    
+    const safeBroadcastLists = Array.isArray(broadcastLists)
+        ? Array.from(new Map(broadcastLists.map(b => [b.broadcastId, b])).values())
+        : [];
+    
+    const safeIndividualChats = Array.isArray(individualChats)
+        ? Array.from(new Map(individualChats.map(c => [c.userId, c])).values())
+        : [];
+    
+    const safeContacts = Array.isArray(contacts)
+        ? Array.from(new Map(contacts.map(c => [c.id, c])).values())
         : [];
     
     const getMemberTags = (members: any[]) => {
@@ -265,7 +513,7 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
             .filter(Boolean);
     };
 
-    const chats: Chat[] = safePatientGroups.map((group: any) => {
+    const patientChats: Chat[] = safePatientGroups.map((group: any) => {
         const patientName = group.fullName || group.name || 'Unknown Group';
         const memberTags = getMemberTags(group.members || []);
         
@@ -295,9 +543,69 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
             zipCode: group.zipCode
         };
     });
+
+    const internalChats: Chat[] = safeInternalGroups.map((group: any) => ({
+        id: group.groupId,
+        name: group.groupName,
+        lastMessage: 'No messages yet',
+        timestamp: 'Active',
+        unreadCount: 0,
+        status: 'active',
+        isGroup: true,
+        isInternalGroup: true,
+        members: [],
+        memberTags: [],
+        createdBy: group.createdBy,
+        createdAt: group.createdAt
+    }));
+
+    const broadcastChats: Chat[] = safeBroadcastLists.map((broadcast: any) => ({
+        id: broadcast.broadcastId,
+        name: broadcast.broadcastName,
+        lastMessage: `${broadcast.members.length} recipients`,
+        timestamp: 'Broadcast',
+        unreadCount: 0,
+        status: 'active',
+        isGroup: false,
+        isBroadcast: true,
+        members: broadcast.members,
+        memberTags: [],
+        createdBy: broadcast.createdBy,
+        createdAt: broadcast.createdAt
+    }));
+
+    const individualChatsFormatted: Chat[] = safeIndividualChats.map((chat: any) => ({
+        id: chat.userId,
+        name: chat.userName,
+        lastMessage: chat.lastMessage,
+        timestamp: new Date(chat.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        unreadCount: 0,
+        status: 'active',
+        isGroup: false,
+        isIndividual: true,
+        members: [],
+        memberTags: [],
+        createdAt: chat.timestamp
+    }));
+
+    const contactsFormatted: Chat[] = safeContacts.map((contact: any) => ({
+        id: contact.id,
+        name: contact.name,
+        lastMessage: contact.designation || contact.email,
+        timestamp: '',
+        unreadCount: 0,
+        status: 'active',
+        isGroup: false,
+        isContact: true,
+        members: [],
+        memberTags: [],
+        createdAt: ''
+    }));
+
+    const chats = activeTab === 'Internal groups' ? internalChats : activeTab === 'Broadcast' ? broadcastChats : activeTab === 'Individual' ? individualChatsFormatted : activeTab === 'Contacts' ? contactsFormatted : patientChats;
     const filteredChats = chats.filter(chat => {
         const matchesSearch = chat.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === null || chat.timestamp === statusFilter;
+        const matchesStatus = activeTab === 'Internal groups' || statusFilter === null || chat.timestamp === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
@@ -358,7 +666,7 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
                                     <Button 
                             variant="outline"
                             className="flex-1 h-10"
-                            onClick={() => setIsBroadcastModalOpen(true)}
+                            onClick={() => setActiveTab('Broadcast')}
                                     >
                             <Radio className="h-4 w-4" />
                                     </Button>
@@ -474,16 +782,21 @@ export function ChatList({ selectedChat, onSelectChat }: ChatListProps) {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
                                             <h3 className="font-medium truncate">{chat.name}</h3>
-                                            <span className={cn(
-                                                "text-xs text-white px-2 py-1 rounded",
-                                                chat.timestamp === 'Active' ? 'bg-green-500' : 
-                                                chat.timestamp === 'Hospitalized' ? 'bg-orange-500' : 
-                                                chat.timestamp === 'Transfer' ? 'bg-orange-700' : 
-                                                chat.timestamp === 'Discharge' ? 'bg-gray-500' : 'bg-red-500'
-                                            )}>
-                                                {chat.timestamp || 'Pending SOC'}
-                                            </span>
+                                            {activeTab === 'Patients' && (
+                                                <span className={cn(
+                                                    "text-xs text-white px-2 py-1 rounded",
+                                                    chat.timestamp === 'Active' ? 'bg-green-500' : 
+                                                    chat.timestamp === 'Hospitalized' ? 'bg-orange-500' : 
+                                                    chat.timestamp === 'Transfer' ? 'bg-orange-700' : 
+                                                    chat.timestamp === 'Discharge' ? 'bg-gray-500' : 'bg-red-500'
+                                                )}>
+                                                    {chat.timestamp || 'Pending SOC'}
+                                                </span>
+                                            )}
                                         </div>
+                                        {activeTab === 'Broadcast' && (
+                                            <p className="text-sm text-muted-foreground mt-1">{chat.lastMessage}</p>
+                                        )}
                                         {chat.memberTags && chat.memberTags.length > 0 && (
                                             <div className="flex gap-1 mt-1">
                                                 {chat.memberTags.map((tag, idx) => (

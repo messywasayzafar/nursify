@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { EditPatientSheet } from './edit-patient-sheet';
+import { InternalGroupSheet } from './internal-group-sheet';
 import { SOCTemplateModal } from '@/components/templates/soc-template-modal';
 import { ROCTemplateModal } from '@/components/templates/roc-template-modal';
 import { RecertTemplateModal } from '@/components/templates/recert-template-modal';
@@ -73,6 +74,94 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
         try {
           setLoadingPatientData(true);
           awsPatientService.initialize();
+          
+          // Load broadcast messages
+          if (selectedChat.isBroadcast) {
+            const { fetchAuthSession, getCurrentUser } = await import('aws-amplify/auth');
+            const session = await fetchAuthSession();
+            const currentUser = await getCurrentUser();
+            const userId = currentUser.username;
+            
+            const { DynamoDBClient, ScanCommand } = await import('@aws-sdk/client-dynamodb');
+            const client = new DynamoDBClient({
+              region: 'us-east-1',
+              credentials: session.credentials
+            });
+            
+            const result = await client.send(new ScanCommand({
+              TableName: 'Messages'
+            }));
+            
+            // Filter messages sent by current user to any broadcast member
+            const broadcastMessages = (result.Items || [])
+              .filter(item => {
+                const senderId = item.senderId?.S || '';
+                const receiverId = item.receiverId?.S || '';
+                return senderId === userId && selectedChat.members?.includes(receiverId);
+              })
+              .sort((a, b) => new Date(a.timestamp?.S || '').getTime() - new Date(b.timestamp?.S || '').getTime())
+              .reduce((acc: any[], item: any) => {
+                const content = item.content?.S || '';
+                const timestamp = item.timestamp?.S || '';
+                const existing = acc.find(m => m.content === content && Math.abs(new Date(m.rawTimestamp).getTime() - new Date(timestamp).getTime()) < 1000);
+                if (!existing) {
+                  acc.push({
+                    id: item.messageId?.S || '',
+                    sender: 'You',
+                    content: content,
+                    timestamp: new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    rawTimestamp: timestamp
+                  });
+                }
+                return acc;
+              }, []);
+            
+            setMessages(broadcastMessages);
+            setLoadingPatientData(false);
+            return;
+          }
+          
+          // Load individual chat messages
+          if (selectedChat.isIndividual || selectedChat.isContact) {
+            const { fetchAuthSession, getCurrentUser } = await import('aws-amplify/auth');
+            const session = await fetchAuthSession();
+            const currentUser = await getCurrentUser();
+            const userId = currentUser.username;
+            const conversationId = [userId, selectedChat.id].sort().join('_');
+            
+            const { DynamoDBClient, QueryCommand } = await import('@aws-sdk/client-dynamodb');
+            const client = new DynamoDBClient({
+              region: 'us-east-1',
+              credentials: session.credentials
+            });
+            
+            const result = await client.send(new QueryCommand({
+              TableName: 'Messages',
+              IndexName: 'ConversationIndex',
+              KeyConditionExpression: 'conversationId = :cid',
+              ExpressionAttributeValues: {
+                ':cid': { S: conversationId }
+              }
+            }));
+            
+            const individualMessages = (result.Items || [])
+              .sort((a, b) => new Date(a.timestamp?.S || '').getTime() - new Date(b.timestamp?.S || '').getTime())
+              .map((item: any) => {
+                const senderId = item.senderId?.S || '';
+                const isFromMe = senderId === userId;
+                return {
+                  id: item.messageId?.S || '',
+                  sender: isFromMe ? 'You' : (item.senderName?.S || 'Other User'),
+                  content: item.content?.S || '',
+                  timestamp: new Date(item.timestamp?.S || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+              });
+            
+            setMessages(individualMessages);
+            setLoadingPatientData(false);
+            return;
+          }
+          
           const groupMessages = await awsPatientService.getGroupMessages(selectedChat.id);
           const currentUserId = awsPatientService.getCurrentUser();
           
@@ -150,10 +239,18 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
       return;
     }
 
-
-    
     try {
-      const websocket = new WebSocket(`${wsUrl}?userId=${userId}&groupId=${selectedChat.id}`);
+      // Skip WebSocket for broadcast chats
+      if (selectedChat.isBroadcast) {
+        setIsConnected(false);
+        return;
+      }
+      
+      // Use groupId for all chats (use conversationId for individual chats)
+      const groupIdParam = selectedChat.isIndividual || selectedChat.isContact
+        ? [userId, selectedChat.id].sort().join('_')
+        : selectedChat.id;
+      const websocket = new WebSocket(`${wsUrl}?userId=${userId}&groupId=${groupIdParam}`);
 
       websocket.onopen = () => {
         setIsConnected(true);
@@ -175,24 +272,34 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
               fileUrl: data.fileUrl || data.fileURL || data.file_url || undefined
             };
             
-            // Dispatch event for chat list to update (for all groups)
-            setTimeout(() => {
-              console.log('WebSocket dispatching event for groupId:', data.groupId, 'message:', data.message || data.content);
-              window.dispatchEvent(new CustomEvent('chatMessageReceived', {
-                detail: { groupId: data.groupId, message: data.message || data.content || '', timestamp: newMessage.timestamp }
-              }));
-            }, 100);
+            // Check if message is for current chat (groupId or conversationId)
+            const currentChatId = selectedChat.isIndividual || selectedChat.isContact
+              ? [userId, selectedChat.id].sort().join('_')
+              : selectedChat.id;
             
-            // Add message to state only if it's for current chat
-            if (data.groupId === selectedChat.id) {
+            if (data.groupId === currentChatId) {
               setMessages(prev => {
                 const exists = prev.some(m => m.id === newMessage.id);
                 if (exists) return prev;
                 return [...prev, newMessage];
               });
             }
+            
+            // Dispatch event for chat list to update
+            setTimeout(() => {
+              if (selectedChat.isIndividual || selectedChat.isContact) {
+                window.dispatchEvent(new CustomEvent('individualMessageReceived'));
+              } else {
+                window.dispatchEvent(new CustomEvent('chatMessageReceived', {
+                  detail: { groupId: data.groupId, message: data.message || data.content || '', timestamp: newMessage.timestamp }
+                }));
+              }
+            }, 100);
           } else if (data.action === 'deleteMessage' || data.action === 'messageDeleted') {
-            if (data.groupId === selectedChat.id) {
+            const currentChatId = selectedChat.isIndividual || selectedChat.isContact
+              ? [userId, selectedChat.id].sort().join('_')
+              : selectedChat.id;
+            if (data.groupId === currentChatId) {
               setMessages(prev => prev.map(msg => 
                 msg.id === data.messageId ? { ...msg, content: 'Deleted By User', isDeleted: true } : msg
               ));
@@ -332,13 +439,135 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
     if (!userId) return;
 
     try {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        // Get current user's name from Cognito
-        const { fetchUserAttributes } = await import('aws-amplify/auth');
-        const attributes = await fetchUserAttributes();
-        const userName = attributes.name || attributes.email?.split('@')[0] || 'User';
+      const { fetchUserAttributes } = await import('aws-amplify/auth');
+      const attributes = await fetchUserAttributes();
+      const userName = attributes.name || attributes.email?.split('@')[0] || 'User';
+
+      // Handle individual/contact messages
+      if (selectedChat.isIndividual || selectedChat.isContact) {
+        const conversationId = [userId, selectedChat.id].sort().join('_');
+        const messageId = `msg_${Date.now()}`;
+        const timestamp = new Date().toISOString();
         
-        // Send via WebSocket for real-time delivery
+        // Store in DynamoDB
+        const { DynamoDBClient, PutItemCommand } = await import('@aws-sdk/client-dynamodb');
+        const { fetchAuthSession } = await import('aws-amplify/auth');
+        const session = await fetchAuthSession();
+        
+        const dynamoClient = new DynamoDBClient({
+          region: 'us-east-1',
+          credentials: session.credentials
+        });
+        
+        await dynamoClient.send(new PutItemCommand({
+          TableName: 'Messages',
+          Item: {
+            messageId: { S: messageId },
+            conversationId: { S: conversationId },
+            senderId: { S: userId },
+            receiverId: { S: selectedChat.id },
+            senderName: { S: userName },
+            content: { S: newMessage },
+            timestamp: { S: timestamp },
+            isRead: { BOOL: false }
+          }
+        }));
+        
+        // Add message locally
+        const newMsg: Message = {
+          id: messageId,
+          sender: 'You',
+          content: newMessage,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages([...messages, newMsg]);
+        
+        // Send via WebSocket using groupId as conversationId
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            action: 'sendMessage',
+            groupId: conversationId,
+            senderId: userId,
+            senderName: userName,
+            message: newMessage,
+            timestamp: timestamp
+          }));
+        }
+        
+        setNewMessage('');
+        window.dispatchEvent(new CustomEvent('individualMessageReceived'));
+        return;
+      }
+
+      // Handle broadcast messages
+      if (selectedChat.isBroadcast) {
+        const { DynamoDBClient, PutItemCommand } = await import('@aws-sdk/client-dynamodb');
+        const { fetchAuthSession } = await import('aws-amplify/auth');
+        const session = await fetchAuthSession();
+        
+        const dynamoClient = new DynamoDBClient({
+          region: 'us-east-1',
+          credentials: session.credentials
+        });
+
+        const timestamp = new Date().toISOString();
+        
+        // Send individual message to each member via WebSocket
+        for (const memberId of selectedChat.members || []) {
+          const messageId = `msg_${Date.now()}_${memberId}`;
+          const conversationId = [userId, memberId].sort().join('_');
+          
+          // Store in DynamoDB
+          await dynamoClient.send(new PutItemCommand({
+            TableName: 'Messages',
+            Item: {
+              messageId: { S: messageId },
+              conversationId: { S: conversationId },
+              senderId: { S: userId },
+              receiverId: { S: memberId },
+              senderName: { S: userName },
+              content: { S: newMessage },
+              timestamp: { S: timestamp },
+              isRead: { BOOL: false }
+            }
+          }));
+          
+          // Send via WebSocket to recipient
+          try {
+            const recipientWs = new WebSocket(`${process.env.NEXT_PUBLIC_WS_ENDPOINT}?userId=${userId}&groupId=${conversationId}`);
+            recipientWs.onopen = () => {
+              recipientWs.send(JSON.stringify({
+                action: 'sendMessage',
+                groupId: conversationId,
+                senderId: userId,
+                senderName: userName,
+                message: newMessage,
+                timestamp: timestamp
+              }));
+              recipientWs.close();
+            };
+          } catch (e) {
+            console.error('WebSocket error for recipient:', memberId, e);
+          }
+        }
+
+        // Add message locally
+        const newMsg: Message = {
+          id: `m${Date.now()}`,
+          sender: 'You',
+          content: newMessage,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages([...messages, newMsg]);
+        setNewMessage('');
+        
+        // Dispatch event to refresh individual chats
+        window.dispatchEvent(new CustomEvent('individualMessageReceived'));
+        return;
+      }
+
+      // Regular group/chat messages
+      if (ws && ws.readyState === WebSocket.OPEN) {
         const messageData = {
           action: 'sendMessage',
           groupId: selectedChat.id,
@@ -350,9 +579,7 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
         
         ws.send(JSON.stringify(messageData));
         setNewMessage('');
-        // Don't add message locally - WebSocket will send it back
       } else {
-        // Fallback to AWS service if WebSocket not available
         const result = await awsPatientService.sendMessage(selectedChat.id, newMessage);
         
         if (result.success) {
@@ -366,7 +593,9 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
           setNewMessage('');
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -560,6 +789,15 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
             <div className="col-span-2 text-center py-4 text-muted-foreground">
               Loading patient data...
             </div>
+          ) : selectedChat?.isInternalGroup ? (
+            <p className="col-span-2"><span className="font-semibold text-lg">{selectedChat.name}</span></p>
+          ) : selectedChat?.isBroadcast ? (
+            <>
+              <p className="col-span-2"><span className="font-semibold text-lg">{selectedChat.name}</span></p>
+              <p className="col-span-2 text-sm text-muted-foreground">{selectedChat.members?.length || 0} recipients</p>
+            </>
+          ) : selectedChat?.isIndividual || selectedChat?.isContact ? (
+            <p className="col-span-2"><span className="font-semibold text-lg">{selectedChat.name}</span></p>
           ) : patientData ? (
             <>
               <p><span className="font-semibold">{patientData.fullName}</span></p>
@@ -602,20 +840,36 @@ export function ChatMessages({ selectedChat }: ChatMessagesProps) {
               <Search className="h-5 w-5" />
             </Button>
           )}
-          <Sheet open={isPatientSheetOpen} onOpenChange={setIsPatientSheetOpen}>
-            <SheetTrigger asChild>
-                <Button variant="outline">Edit Patient</Button>
-            </SheetTrigger>
-            <SheetContent className="sm:max-w-md p-0">
-                <EditPatientSheet 
-                  patient={patientData || selectedChat} 
-                  setOpen={setIsPatientSheetOpen} 
-                />
-            </SheetContent>
-          </Sheet>
+          {!selectedChat?.isBroadcast && !selectedChat?.isIndividual && !selectedChat?.isContact && (
+            <Sheet open={isPatientSheetOpen} onOpenChange={setIsPatientSheetOpen}>
+              <SheetTrigger asChild>
+                  <Button variant="outline">{selectedChat?.isInternalGroup ? 'Group Settings' : 'Edit Patient'}</Button>
+              </SheetTrigger>
+              <SheetContent className="sm:max-w-md p-0">
+                  {selectedChat?.isInternalGroup ? (
+                    <InternalGroupSheet 
+                      group={selectedChat} 
+                      setOpen={setIsPatientSheetOpen} 
+                    />
+                  ) : (
+                    <EditPatientSheet 
+                      patient={patientData || selectedChat} 
+                      setOpen={setIsPatientSheetOpen} 
+                    />
+                  )}
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </div>
-      <ScrollArea className="flex-1 overflow-y-auto">
+      <ScrollArea className="flex-1 overflow-y-auto" ref={(ref) => {
+        if (ref) {
+          const scrollContainer = ref.querySelector('[data-radix-scroll-area-viewport]');
+          if (scrollContainer) {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+          }
+        }
+      }}>
         <div className="flex flex-col gap-4 p-4">
           {filteredMessages.map((message) => {
             return (
